@@ -1,0 +1,56 @@
+components:
+  - id: models
+    role: "Pydantic v2 data models: Persona, Finding, PersonaReport, Review, Disagreement"
+    protocol: "Python import"
+    authority: "schema"
+    dependencies: []
+
+  - id: personas
+    role: "Six persona definitions with system prompts, dimensions, and success criteria"
+    protocol: "Python import"
+    authority: "persona_definitions"
+    dependencies: [models]
+
+  - id: provider
+    role: "Multi-provider LLM abstraction with cost estimation and transmogrifier"
+    protocol: "async Python"
+    authority: "llm_orchestration"
+    dependencies: []
+
+  - id: engine
+    role: "Review orchestration: runs personas, parses findings, detects disagreements"
+    protocol: "async Python"
+    authority: "review_execution"
+    dependencies: [models, personas, provider]
+
+  - id: report
+    role: "Output generation: terminal (colored), JSON, HTML"
+    protocol: "Python import"
+    authority: "reporting"
+    dependencies: [models, personas]
+
+  - id: cli
+    role: "Click CLI entry point: review, personas commands"
+    protocol: "Click commands"
+    authority: "user_interface"
+    dependencies: [engine, provider, report]
+
+edges:
+  - from: cli
+    to: engine
+    tier: direct
+  - from: cli
+    to: provider
+    tier: direct
+  - from: cli
+    to: report
+    tier: direct
+  - from: engine
+    to: personas
+    tier: direct
+  - from: engine
+    to: provider
+    tier: direct
+  - from: report
+    to: personas
+    tier: direct

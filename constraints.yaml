@@ -1,0 +1,72 @@
+constraints:
+  - id: C001
+    boundary: prompt_injection_defense
+    condition: "All user-provided content must be sanitized before embedding in LLM prompts"
+    violation: "Malicious code comments could manipulate review output"
+    severity: must
+    rationale: "Reviewing untrusted code means untrusted content enters prompts"
+    affected_components: [engine]
+
+  - id: C002
+    boundary: path_traversal_prevention
+    condition: "Directory traversal must validate all resolved paths stay within the target directory"
+    violation: "Attacker-crafted paths could read arbitrary files"
+    severity: must
+    rationale: "Users may review directories containing symlinks or crafted paths"
+    affected_components: [engine]
+
+  - id: C003
+    boundary: persona_failure_visibility
+    condition: "Failed personas must be reported with error details, not silently dropped"
+    violation: "Users get incomplete reviews without knowing which perspectives are missing"
+    severity: must
+    rationale: "Silent failure gives false confidence in review completeness"
+    affected_components: [engine]
+
+  - id: C004
+    boundary: cost_transparency
+    condition: "Every LLM call must report input tokens, output tokens, and estimated cost"
+    violation: "Users cannot predict or audit review costs"
+    severity: must
+    rationale: "Six parallel LLM calls can be expensive; users need visibility"
+    affected_components: [provider, report]
+
+  - id: C005
+    boundary: binary_file_safety
+    condition: "Binary files must be detected and skipped when reviewing directories"
+    violation: "Binary content garbles prompts, wastes tokens, produces garbage findings"
+    severity: must
+    rationale: "Real directories contain images, compiled files, etc."
+    affected_components: [engine]
+
+  - id: C006
+    boundary: provider_isolation
+    condition: "Provider implementations must be behind the LLMProvider abstraction"
+    violation: "Adding a provider requires changes across multiple files"
+    severity: must
+    rationale: "Users configure provider; switching must be a one-line change"
+    affected_components: [provider]
+
+  - id: C007
+    boundary: finding_evidence_required
+    condition: "Every finding must include evidence from the reviewed input"
+    violation: "Findings without evidence are opinions, not actionable"
+    severity: should
+    rationale: "Personas are prompted to provide evidence; the schema enforces the field"
+    affected_components: [personas, models]
+
+  - id: C008
+    boundary: license_compatibility
+    condition: "All dependencies must be MIT, Apache 2.0, or BSD licensed"
+    violation: "GPL deps would prevent MIT licensing"
+    severity: must
+    rationale: "Tool is MIT licensed for commercial use"
+    affected_components: [all]
+
+  - id: C009
+    boundary: silence_is_signal
+    condition: "Empty findings from a persona must be preserved and displayed, not filtered out"
+    violation: "Users miss the positive signal that a perspective found nothing wrong"
+    severity: should
+    rationale: "No findings from Red Team is valuable information"
+    affected_components: [report, engine]

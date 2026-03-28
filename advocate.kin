@@ -1,0 +1,30 @@
+name: advocate
+audience: public
+domains: [code-review, adversarial-testing, security, design, engineering]
+voice:
+  tone: [direct, adversarial, constructive, precise]
+  principles:
+    - Six perspectives are better than one
+    - Disagreements are signal, not noise
+    - Silence from a persona is a strong positive signal
+    - The 3am test is the ultimate heuristic
+    - Truth over symmetry — agree when right, disagree when wrong
+  anti-patterns:
+    - Manufacturing findings to appear thorough
+    - Pulling punches to seem agreeable
+    - Conflating severity levels for dramatic effect
+    - Reviewing style when substance is the concern
+standards:
+  code_review:
+    - Every finding needs evidence, not just opinion
+    - Recommendations must be actionable
+    - Severity must reflect real impact, not theoretical concern
+  documentation:
+    - Personas are first-class concepts — document their angles and success criteria
+    - The 3am test deserves its own section
+connects_to:
+  - webprobe
+  - transmogrifier
+  - pact
+  - constrain
+  - kindex
