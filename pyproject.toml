@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "advocate"
+version = "0.1.0"
+description = "Six-persona adversarial review engine — stress-tests code, designs, and decisions"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "click>=8.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.0"]
+gemini = ["google-genai>=1.0"]
+transmogrifier = ["transmogrifier"]
+all = ["advocate[anthropic,openai,gemini,transmogrifier]"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+advocate = "advocate.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/advocate"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
