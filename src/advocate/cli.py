@@ -64,9 +64,12 @@ def review(target: str | None, provider: str, model: str | None,
             click.echo("Error: empty input.", err=True)
             sys.exit(1)
 
-        # Truncation guard
+        # Truncation guard with explicit consent
         if len(content) > 200_000:
-            click.echo(f"Warning: input is {len(content)} chars, truncating to 200k.", err=True)
+            click.echo(f"Input is {len(content):,} chars ({len(content)//1000}k). "
+                        f"Will truncate to 200k for LLM context limits.", err=True)
+            if sys.stdin.isatty() and not click.confirm("Continue with truncation?", default=True):
+                sys.exit(0)
             content = content[:200_000] + "\n\n[... truncated ...]"
 
         # Persona selection

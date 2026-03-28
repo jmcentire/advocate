@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,6 +22,57 @@ from advocate.models import (
 from advocate.personas import PERSONA_META, SYSTEM_PROMPTS
 from advocate.provider import LLMProvider, estimate_cost, transmogrify
 
+logger = logging.getLogger("advocate")
+
+
+def _sanitize_content_for_prompt(content: str) -> str:
+    """Strip prompt injection patterns from user content before embedding in prompts."""
+    sanitized = re.sub(
+        r'(?i)(ignore|disregard|forget)\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)',
+        '[CONTENT_REDACTED]', content)
+    sanitized = re.sub(r'(?i)you\s+are\s+now\s+', '[CONTENT_REDACTED]', sanitized)
+    sanitized = re.sub(r'(?i)system\s*:\s*', '[CONTENT_REDACTED]', sanitized)
+    return sanitized
+
+
+def _parse_findings_json(text: str) -> tuple[list[dict], str]:
+    """Robustly extract JSON findings array from LLM response.
+
+    Returns (parsed_items, summary_text). On failure returns ([], full_text).
+    """
+    text = text.strip()
+
+    # Try markdown code block first
+    for block in re.findall(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL):
+        try:
+            items = json.loads(block.strip())
+            if isinstance(items, list):
+                remainder = text.replace(f"```json\n{block}\n```", "").replace(f"```\n{block}\n```", "").strip()
+                return items, remainder
+        except json.JSONDecodeError:
+            continue
+
+    # Try finding [ ... ] with bracket matching
+    depth = 0
+    start = -1
+    for i, ch in enumerate(text):
+        if ch == '[':
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == ']':
+            depth -= 1
+            if depth == 0 and start >= 0:
+                try:
+                    items = json.loads(text[start:i + 1])
+                    if isinstance(items, list):
+                        summary = text[i + 1:].strip()
+                        return items, summary
+                except json.JSONDecodeError:
+                    start = -1
+
+    return [], text
+
 
 async def _run_persona(
     persona: Persona,
@@ -31,13 +84,16 @@ async def _run_persona(
     meta = PERSONA_META[persona]
     system = SYSTEM_PROMPTS[persona]
 
+    # Sanitize user content before embedding in prompt
+    safe_content = _sanitize_content_for_prompt(content)
+
     user_prompt = f"""Review the following. You are the {meta['name']}. {meta['tagline']}
 
 **Target**: {target_description}
 
 ---
 
-{content}
+{safe_content}
 
 ---
 
@@ -50,6 +106,7 @@ Your success criterion: {meta['success']}"""
     try:
         response, in_tokens, out_tokens = await llm.complete(system, user_prompt)
     except Exception as e:
+        logger.error("Persona %s failed: %s", persona.value, e)
         return PersonaReport(
             persona=persona,
             summary=f"Error: {e}",
@@ -57,37 +114,35 @@ Your success criterion: {meta['success']}"""
         )
     duration = (time.monotonic() - start) * 1000
 
-    # Parse findings from JSON
+    # Parse findings with robust extraction
     findings: list[Finding] = []
-    summary = ""
+    items, summary = _parse_findings_json(response)
 
-    try:
-        # Extract JSON array from response (may have surrounding text)
-        text = response.strip()
-        json_start = text.index("[")
-        json_end = text.rindex("]") + 1
-        items = json.loads(text[json_start:json_end])
-        # Everything after the JSON is the summary
-        summary = text[json_end:].strip()
+    sev_map = {s.value: s for s in Severity}
+    dim_map = {d.value: d for d in Dimension}
 
-        sev_map = {s.value: s for s in Severity}
-        dim_map = {d.value: d for d in Dimension}
+    parse_failed = False
+    if not items and response.strip():
+        parse_failed = True
+        logger.warning("Persona %s: JSON parsing failed, raw response preserved in summary", persona.value)
 
-        for item in items:
-            sev = sev_map.get(item.get("severity", "medium"), Severity.medium)
-            dim = dim_map.get(item.get("dimension", "concept"), Dimension.concept)
-            findings.append(Finding(
-                persona=persona,
-                severity=sev,
-                dimension=dim,
-                title=item.get("title", "Untitled finding"),
-                detail=item.get("detail", ""),
-                evidence=item.get("evidence", ""),
-                recommendation=item.get("recommendation", ""),
-            ))
-    except (ValueError, json.JSONDecodeError):
-        # If JSON parsing fails, treat entire response as summary
-        summary = response
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        sev = sev_map.get(item.get("severity", "medium"), Severity.medium)
+        dim = dim_map.get(item.get("dimension", "concept"), Dimension.concept)
+        findings.append(Finding(
+            persona=persona,
+            severity=sev,
+            dimension=dim,
+            title=item.get("title", "Untitled finding"),
+            detail=item.get("detail", ""),
+            evidence=item.get("evidence", ""),
+            recommendation=item.get("recommendation", ""),
+        ))
+
+    if parse_failed:
+        summary = f"[PARSE_FAILED] Raw response:\n{response[:500]}"
 
     return PersonaReport(
         persona=persona,
@@ -101,26 +156,19 @@ Your success criterion: {meta['success']}"""
 
 
 def _detect_disagreements(reports: list[PersonaReport]) -> list[Disagreement]:
-    """Find cases where personas disagree -- this is valuable signal.
-
-    Disagreements happen when:
-    - One persona flags something as a problem, another's logic implies it's fine
-    - Two personas flag the same thing but with contradictory recommendations
-    - The Sage says "simplify" but the SME says "this complexity is necessary"
-    """
+    """Find cases where personas disagree -- this is valuable signal."""
     disagreements: list[Disagreement] = []
 
-    # Compare all pairs of personas
     for i, report_a in enumerate(reports):
         for report_b in reports[i + 1:]:
             for finding_a in report_a.findings:
                 for finding_b in report_b.findings:
-                    # Same topic, different conclusions
+                    if not finding_a.title or not finding_b.title:
+                        continue
                     title_overlap = _word_overlap(finding_a.title, finding_b.title)
                     if title_overlap < 0.3:
                         continue
 
-                    # Different severity = disagreement on importance
                     sev_a = list(Severity).index(finding_a.severity)
                     sev_b = list(Severity).index(finding_b.severity)
                     if abs(sev_a - sev_b) >= 2:
@@ -132,18 +180,6 @@ def _detect_disagreements(reports: list[PersonaReport]) -> list[Disagreement]:
                                     f"{PERSONA_META[finding_b.persona]['name']} rates it "
                                     f"{finding_b.severity.value}. The gap suggests different "
                                     f"risk models worth examining.",
-                        ))
-
-                    # Contradictory recommendations
-                    if (finding_a.recommendation and finding_b.recommendation and
-                            _sentiment_contradicts(finding_a.recommendation, finding_b.recommendation)):
-                        disagreements.append(Disagreement(
-                            finding_a=finding_a,
-                            finding_b=finding_b,
-                            tension=f"{PERSONA_META[finding_a.persona]['name']} recommends "
-                                    f"'{finding_a.recommendation[:60]}' while "
-                                    f"{PERSONA_META[finding_b.persona]['name']} recommends "
-                                    f"'{finding_b.recommendation[:60]}'. Tension worth resolving.",
                         ))
 
     return disagreements
@@ -158,19 +194,6 @@ def _word_overlap(a: str, b: str) -> float:
     return len(words_a & words_b) / len(words_a | words_b)
 
 
-def _sentiment_contradicts(a: str, b: str) -> bool:
-    """Rough heuristic: do two recommendations point in opposite directions?"""
-    add_words = {"add", "include", "implement", "create", "enable", "increase", "more", "expand"}
-    remove_words = {"remove", "delete", "simplify", "reduce", "disable", "less", "eliminate", "drop"}
-    words_a = set(a.lower().split())
-    words_b = set(b.lower().split())
-    a_adds = bool(words_a & add_words)
-    a_removes = bool(words_a & remove_words)
-    b_adds = bool(words_b & add_words)
-    b_removes = bool(words_b & remove_words)
-    return (a_adds and b_removes) or (a_removes and b_adds)
-
-
 async def review(
     content: str,
     target: str,
@@ -179,11 +202,7 @@ async def review(
     personas: list[Persona] | None = None,
     parallel: bool = True,
 ) -> Review:
-    """Run an Advocate review.
-
-    All six personas run by default. Set parallel=True (default) to run them
-    concurrently -- 6 simultaneous LLM calls.
-    """
+    """Run an Advocate review."""
     if personas is None:
         personas = list(Persona)
 
@@ -195,19 +214,23 @@ async def review(
 
     if parallel:
         tasks = [_run_persona(p, llm, content, target) for p in personas]
-        reports = await asyncio.gather(*tasks, return_exceptions=True)
-        for result in reports:
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for i, result in enumerate(results):
             if isinstance(result, PersonaReport):
                 rev.persona_reports.append(result)
+            elif isinstance(result, Exception):
+                # Don't silently drop failures (Adversarial fix)
+                logger.error("Persona %s raised exception: %s", personas[i].value, result)
+                rev.persona_reports.append(PersonaReport(
+                    persona=personas[i],
+                    summary=f"Error: {result}",
+                ))
     else:
         for p in personas:
             report = await _run_persona(p, llm, content, target)
             rev.persona_reports.append(report)
 
-    # Detect disagreements
     rev.disagreements = _detect_disagreements(rev.persona_reports)
-
-    # Totals
     rev.total_findings = sum(len(r.findings) for r in rev.persona_reports)
     rev.total_cost_usd = sum(r.estimated_cost_usd for r in rev.persona_reports)
     rev.completed_at = datetime.now(timezone.utc).isoformat()
@@ -215,23 +238,56 @@ async def review(
     return rev
 
 
+def _is_binary(path: Path) -> bool:
+    """Check if a file is binary by looking for null bytes."""
+    try:
+        chunk = path.read_bytes()[:1024]
+        return b'\x00' in chunk
+    except Exception:
+        return True
+
+
 def load_input(path: str) -> tuple[str, str, str]:
     """Load review input from a path. Returns (content, target, target_type)."""
-    p = Path(path)
+    p = Path(path).resolve()
     if p.is_dir():
-        # Concatenate all source files
         parts = []
+        skipped: list[str] = []
         extensions = {".py", ".ts", ".js", ".tsx", ".jsx", ".go", ".rs", ".java",
                       ".md", ".yaml", ".yml", ".toml", ".json"}
         for f in sorted(p.rglob("*")):
-            if f.is_file() and f.suffix in extensions and ".git" not in f.parts:
-                try:
-                    text = f.read_text(errors="replace")
-                    parts.append(f"--- {f.relative_to(p)} ---\n{text}\n")
-                except Exception:
-                    continue
+            if not f.is_file():
+                continue
+            if f.suffix not in extensions:
+                continue
+            if ".git" in f.parts or "__pycache__" in f.parts or "node_modules" in f.parts:
+                continue
+            # Path traversal protection: ensure resolved path is under base dir
+            try:
+                f.resolve().relative_to(p)
+            except ValueError:
+                skipped.append(str(f))
+                continue
+            if _is_binary(f):
+                skipped.append(str(f))
+                continue
+            try:
+                text = f.read_text(encoding="utf-8")
+                parts.append(f"--- {f.relative_to(p)} ---\n{text}\n")
+            except (UnicodeDecodeError, PermissionError) as e:
+                skipped.append(f"{f}: {e}")
+                continue
+        if skipped:
+            logger.info("Skipped %d files: %s", len(skipped), ", ".join(skipped[:5]))
+        if not parts:
+            raise ValueError(f"No source files found in {p}. Supported: {', '.join(sorted(extensions))}")
         return "\n".join(parts), str(p), "directory"
     elif p.is_file():
-        return p.read_text(errors="replace"), str(p), "file"
+        if _is_binary(p):
+            raise ValueError(f"Binary file not supported: {p}")
+        try:
+            return p.read_text(encoding="utf-8"), str(p), "file"
+        except UnicodeDecodeError:
+            raise ValueError(f"File encoding error: {p}. Only UTF-8 is supported.")
     else:
         raise FileNotFoundError(f"Not found: {path}")
