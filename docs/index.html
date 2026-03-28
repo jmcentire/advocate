@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advocate — Six-Persona Adversarial Review</title>
+<meta name="description" content="Feed it code, a design, or a decision. Six distinct perspectives attack it simultaneously. Disagreements are signal.">
+<style>
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --accent: #58a6ff; --green: #3fb950;
+    --yellow: #d29922; --red: #f85149; --card: #161b22; --border: #30363d;
+    --muted: #8b949e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.7;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+  .hero { padding: 6rem 0 3rem; text-align: center; }
+  .hero h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+  .hero h1 span { color: var(--accent); }
+  .hero .tagline { font-size: 1.25rem; color: var(--muted); max-width: 640px; margin: 0 auto 2rem; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 0.75rem 1.5rem; border-radius: 6px;
+    font-weight: 600; text-decoration: none; font-size: 1rem; transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+
+  .install {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin: 2rem auto; max-width: 520px; text-align: left;
+    font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 0.95rem;
+    color: var(--green);
+  }
+  .install .c { color: var(--muted); }
+
+  section { padding: 4rem 0; }
+  h2 { text-align: center; font-size: 2rem; margin-bottom: 0.5rem; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+  .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .persona-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.5rem; transition: border-color 0.15s;
+  }
+  .persona-card:hover { border-color: var(--accent); }
+  .persona-card h3 { font-size: 1.15rem; margin-bottom: 0.15rem; }
+  .persona-card .angle { color: var(--accent); font-style: italic; font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .persona-card .success { color: var(--muted); font-size: 0.9rem; }
+  .persona-card .dims { color: var(--muted); font-size: 0.8rem; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+
+  .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+  .dim-item { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+  .dim-item strong { display: block; font-size: 0.9rem; margin-bottom: 0.15rem; }
+  .dim-item span { color: var(--muted); font-size: 0.8rem; }
+
+  .callout {
+    background: var(--card); border-left: 4px solid var(--yellow); border-radius: 0 8px 8px 0;
+    padding: 1.5rem; margin: 2rem auto; max-width: 640px;
+  }
+  .callout h3 { color: var(--yellow); margin-bottom: 0.5rem; }
+  .callout blockquote { color: var(--fg); font-style: italic; font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .callout p { color: var(--muted); font-size: 0.95rem; }
+
+  pre {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.25rem 1.5rem; overflow-x: auto; font-size: 0.9rem;
+    font-family: 'SF Mono', Monaco, Consolas, monospace; line-height: 1.5;
+    margin: 1.5rem 0;
+  }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+  .feature { text-align: center; padding: 1.5rem; }
+  .feature h3 { margin-bottom: 0.5rem; }
+  .feature p { color: var(--muted); font-size: 0.95rem; }
+
+  footer {
+    padding: 3rem 0; text-align: center; color: var(--muted);
+    border-top: 1px solid var(--border); margin-top: 4rem; font-size: 0.9rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <section class="hero">
+    <h1><span>Advocate</span></h1>
+    <p class="tagline">
+      Six distinct perspectives attack your code simultaneously, each with a different
+      standard of success. Disagreements between them are signal, not noise.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/jmcentire/advocate" class="btn btn-primary">GitHub</a>
+      <a href="https://pypi.org/project/advocate/" class="btn btn-secondary">PyPI</a>
+    </div>
+    <div class="install">
+      <span class="c"># Review any code in 30 seconds</span><br>
+      pip install advocate[anthropic]<br>
+      advocate review ./src/
+    </div>
+  </section>
+
+  <section>
+    <h2>The Six Personas</h2>
+    <p class="subtitle">Not a checklist. Genuine distinct perspectives that will disagree with each other sometimes.</p>
+    <div class="persona-grid">
+      <div class="persona-card">
+        <h3>Red Team</h3>
+        <div class="angle">It's vulnerable; harden.</div>
+        <div class="success">Success: the thing survives assault.</div>
+        <div class="dims">Security, injection, exploitation, data corruption, race conditions</div>
+      </div>
+      <div class="persona-card">
+        <h3>Adversarial</h3>
+        <div class="angle">It's wrong; defend.</div>
+        <div class="success">Success: the argument holds under direct challenge.</div>
+        <div class="dims">Wrong assumptions, edge cases, failure modes, backward compatibility</div>
+      </div>
+      <div class="persona-card">
+        <h3>Sage</h3>
+        <div class="angle">It's complicated; simplify.</div>
+        <div class="success">Success: a smart person can explain it simply.</div>
+        <div class="dims">Design, concept, blast radius</div>
+      </div>
+      <div class="persona-card">
+        <h3>User</h3>
+        <div class="angle">It's unintuitive; clarify.</div>
+        <div class="success">Success: someone unfamiliar can navigate it without a guide.</div>
+        <div class="dims">Design, concept, edge cases</div>
+      </div>
+      <div class="persona-card">
+        <h3>Subject Matter Expert</h3>
+        <div class="angle">Peer-review.</div>
+        <div class="success">Success: a peer would sign off on it.</div>
+        <div class="dims">Wrong assumptions, backward compatibility, design, concept</div>
+      </div>
+      <div class="persona-card">
+        <h3>Good Friend</h3>
+        <div class="angle">The harsh truth you need to hear.</div>
+        <div class="success">Success: you'd rather know now than later.</div>
+        <div class="dims">Financial risk, the 3am test, blast radius, failure modes</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="callout">
+    <h3>The 3am Test</h3>
+    <blockquote>"Would you be comfortable being woken up at 3am to deal with this in production?"</blockquote>
+    <p>One of the most useful single-question heuristics in engineering. Almost nobody codifies it. The Good Friend applies it ruthlessly.</p>
+  </div>
+
+  <section>
+    <h2>14 Dimensions</h2>
+    <p class="subtitle">Engineering, architecture, and operational reality.</p>
+    <div class="dim-grid">
+      <div class="dim-item"><strong>Security</strong><span>Auth, authz, privilege escalation</span></div>
+      <div class="dim-item"><strong>Injection</strong><span>SQL, XSS, command, template</span></div>
+      <div class="dim-item"><strong>Exploitation</strong><span>Race conditions, TOCTOU, replay</span></div>
+      <div class="dim-item"><strong>Data Corruption</strong><span>Truncation, encoding, integrity</span></div>
+      <div class="dim-item"><strong>Edge Cases</strong><span>Boundaries, empty, Unicode, time</span></div>
+      <div class="dim-item"><strong>Race Conditions</strong><span>Concurrency, inconsistent state</span></div>
+      <div class="dim-item"><strong>Failure Modes</strong><span>Dependencies, network, disk</span></div>
+      <div class="dim-item"><strong>Wrong Assumptions</strong><span>Implicit, unvalidated beliefs</span></div>
+      <div class="dim-item"><strong>Backward Compat</strong><span>Breaking users, data, APIs</span></div>
+      <div class="dim-item"><strong>Blast Radius</strong><span>How much breaks if this fails?</span></div>
+      <div class="dim-item"><strong>Financial Risk</strong><span>Hidden costs, lock-in, scaling</span></div>
+      <div class="dim-item"><strong>The 3am Test</strong><span>Pager fatigue, human cost</span></div>
+      <div class="dim-item"><strong>Design</strong><span>Over-engineering, wrong patterns</span></div>
+      <div class="dim-item"><strong>Concept</strong><span>Is the approach fundamentally sound?</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Usage</h2>
+    <pre><code><span style="color:var(--muted)"># Review a file</span>
+advocate review src/main.py
+
+<span style="color:var(--muted)"># Review a whole project</span>
+advocate review ./my-project/
+
+<span style="color:var(--muted)"># Just the hardest personas</span>
+advocate review src/auth.py -p red_team -p good_friend
+
+<span style="color:var(--muted)"># From stdin</span>
+echo "We plan to store tokens in localStorage" | advocate review --stdin
+
+<span style="color:var(--muted)"># HTML report</span>
+advocate review src/ --html report.html
+
+<span style="color:var(--muted)"># Different provider</span>
+advocate review src/ --provider openai --model gpt-4o</code></pre>
+  </section>
+
+  <section>
+    <h2>Built for Real Work</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <h3>Parallel by Default</h3>
+        <p>All six personas run simultaneously. Full review in ~30 seconds. Use --sequential to save costs.</p>
+      </div>
+      <div class="feature">
+        <h3>Disagreement Detection</h3>
+        <p>When personas disagree, the tension itself is the finding. Sage says "simplify" while SME says "necessary"? That's worth examining.</p>
+      </div>
+      <div class="feature">
+        <h3>Multi-Provider</h3>
+        <p>Claude, OpenAI, or Gemini. With transmogrifier integration for prompt optimization across models.</p>
+      </div>
+      <div class="feature">
+        <h3>Self-Reviewed</h3>
+        <p>Advocate reviewed itself. Found 30 issues. Fixed them. Re-reviewed. Good Friend returned zero.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <strong>Advocate</strong> is MIT licensed. ~$0.15-0.30 per review.<br>
+    <a href="https://github.com/jmcentire/advocate">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
