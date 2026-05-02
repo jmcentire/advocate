@@ -1,0 +1,288 @@
+{
+  "component_id": "src_advocate_report",
+  "name": "Advocate Report Generation",
+  "description": "Multi-format report generation for Advocate review results. Renders Review objects to terminal (with ANSI color support), JSON, and HTML outputs. Terminal rendering includes severity-coded findings, persona summaries, and disagreement detection. HTML output uses Jinja2 templating with embedded dark-mode stylesheet.",
+  "version": 1,
+  "types": [],
+  "functions": [
+    {
+      "name": "print_review",
+      "description": "Prints a formatted Review to terminal with optional ANSI color codes. Outputs header with target/findings/cost summary, iterates persona_reports showing findings sorted by severity, and displays disagreements if present. Uses _SEV_COLORS for severity highlighting and PERSONA_META for persona metadata.",
+      "inputs": [
+        {
+          "name": "review",
+          "type_ref": "advocate.models.Review",
+          "required": true,
+          "default": "",
+          "description": "The Review object containing persona reports, findings, and disagreements",
+          "validators": []
+        },
+        {
+          "name": "color",
+          "type_ref": "bool",
+          "required": false,
+          "default": "True",
+          "description": "Whether to include ANSI color escape codes in output",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "KeyError",
+          "condition": "report.persona not found in PERSONA_META",
+          "error_type": "KeyError",
+          "error_data": {}
+        },
+        {
+          "name": "AttributeError",
+          "condition": "Review object missing required attributes (target, total_findings, persona_reports, etc.)",
+          "error_type": "AttributeError",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "review.persona_reports must be iterable",
+        "Each report.persona must exist as a key in PERSONA_META",
+        "Each finding must have a severity attribute that can be indexed in list(Severity)"
+      ],
+      "postconditions": [
+        "Formatted text written to stdout via print()",
+        "No return value",
+        "No modification to review object"
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [
+        "Writes to stdout",
+        "Accesses global PERSONA_META dict"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "logging",
+          "target": "stdout",
+          "description": "Prints formatted review with headers, findings, summaries, and disagreements"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "write_json",
+      "description": "Serializes a Review object to JSON and writes to the specified file path. Uses pydantic's model_dump_json with 2-space indentation.",
+      "inputs": [
+        {
+          "name": "review",
+          "type_ref": "advocate.models.Review",
+          "required": true,
+          "default": "",
+          "description": "The Review object to serialize",
+          "validators": []
+        },
+        {
+          "name": "path",
+          "type_ref": "pathlib.Path",
+          "required": true,
+          "default": "",
+          "description": "Filesystem path where JSON will be written",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "OSError",
+          "condition": "Path is not writable or directory does not exist",
+          "error_type": "OSError",
+          "error_data": {}
+        },
+        {
+          "name": "PermissionError",
+          "condition": "Insufficient permissions to write to path",
+          "error_type": "PermissionError",
+          "error_data": {}
+        },
+        {
+          "name": "AttributeError",
+          "condition": "review does not have model_dump_json method",
+          "error_type": "AttributeError",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "review must be a pydantic BaseModel with model_dump_json() method",
+        "path must be a valid Path object"
+      ],
+      "postconditions": [
+        "File at path contains JSON representation of review with indent=2",
+        "File is overwritten if it already exists"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Writes file to filesystem at path location"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "writes_file",
+          "target": "path parameter",
+          "description": "Writes JSON-serialized Review to filesystem"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "write_html",
+      "description": "Renders a Review object to HTML using the _HTML Jinja2 template and writes to the specified file path. Injects PERSONA_META and __version__ into template context. Template generates dark-mode styled report with summary cards, persona findings, and disagreements.",
+      "inputs": [
+        {
+          "name": "review",
+          "type_ref": "advocate.models.Review",
+          "required": true,
+          "default": "",
+          "description": "The Review object to render",
+          "validators": []
+        },
+        {
+          "name": "path",
+          "type_ref": "pathlib.Path",
+          "required": true,
+          "default": "",
+          "description": "Filesystem path where HTML will be written",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "OSError",
+          "condition": "Path is not writable or directory does not exist",
+          "error_type": "OSError",
+          "error_data": {}
+        },
+        {
+          "name": "PermissionError",
+          "condition": "Insufficient permissions to write to path",
+          "error_type": "PermissionError",
+          "error_data": {}
+        },
+        {
+          "name": "ImportError",
+          "condition": "advocate.__version__ cannot be imported",
+          "error_type": "ImportError",
+          "error_data": {}
+        },
+        {
+          "name": "KeyError",
+          "condition": "Persona value not found in PERSONA_META during dict comprehension",
+          "error_type": "KeyError",
+          "error_data": {}
+        },
+        {
+          "name": "AttributeError",
+          "condition": "Review object missing attributes referenced in template",
+          "error_type": "AttributeError",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "review object must have attributes used in template (target, target_type, review_id, started_at, total_findings, persona_reports, disagreements, total_cost_usd)",
+        "_HTML template must be initialized and valid Jinja2 Template",
+        "All Persona enum values must exist in PERSONA_META",
+        "advocate.__version__ must be importable"
+      ],
+      "postconditions": [
+        "File at path contains rendered HTML with embedded CSS",
+        "File is overwritten if it already exists"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Imports advocate.__version__ at runtime",
+        "Accesses global PERSONA_META dict",
+        "Writes file to filesystem at path location"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "writes_file",
+          "target": "path parameter",
+          "description": "Writes HTML-rendered Review to filesystem"
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "json",
+    "pathlib",
+    "jinja2",
+    "advocate.models",
+    "advocate.personas",
+    "advocate"
+  ],
+  "dependency_contracts": {
+    "advocate.models": [
+      "Review",
+      "Severity",
+      "Persona"
+    ],
+    "advocate.personas": [
+      "PERSONA_META"
+    ],
+    "advocate": [
+      "__version__"
+    ],
+    "jinja2": [
+      "Template"
+    ],
+    "pathlib": [
+      "Path"
+    ]
+  },
+  "invariants": [
+    "_SEV_COLORS maps Severity enum members to ANSI escape codes",
+    "_RESET is ANSI reset code '\\033[0m'",
+    "_HTML is a pre-compiled Jinja2 Template constant containing the full HTML template",
+    "PERSONA_META must contain entries for all Persona enum values",
+    "Severity enum ordering determines finding sort order in terminal output"
+  ],
+  "requires": [],
+  "processing_register": "",
+  "data_access": {
+    "reads": [
+      "advocate.personas.PERSONA_META",
+      "advocate.__version__"
+    ],
+    "writes": [
+      "filesystem"
+    ],
+    "rationale": "Reads persona metadata and version for rendering context; writes JSON/HTML files to user-specified paths",
+    "side_effects": [
+      {
+        "type": "stdout",
+        "classification": "logging",
+        "fields": [
+          "review summary",
+          "findings",
+          "disagreements"
+        ],
+        "rationale": "print_review outputs formatted text to stdout"
+      },
+      {
+        "type": "file_write",
+        "classification": "persistence",
+        "fields": [
+          "JSON serialization",
+          "HTML rendering"
+        ],
+        "rationale": "write_json and write_html persist review data to filesystem"
+      }
+    ]
+  },
+  "authority": {
+    "domains": [
+      "report_generation",
+      "output_formatting"
+    ],
+    "rationale": "Owns all report rendering logic for Advocate reviews across terminal, JSON, and HTML formats"
+  }
+}

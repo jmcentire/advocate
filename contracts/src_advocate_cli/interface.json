@@ -1,0 +1,299 @@
+{
+  "component_id": "src_advocate_cli",
+  "name": "Advocate CLI Entry Point",
+  "description": "Command-line interface for the Advocate six-persona adversarial review engine. Provides commands to review code/documentation via files, directories, or stdin, and to list available personas. Orchestrates input loading, LLM provider setup, parallel/sequential review execution, and output formatting (terminal, JSON, HTML).",
+  "version": 1,
+  "types": [],
+  "functions": [
+    {
+      "name": "main",
+      "description": "Click command group entry point for Advocate CLI. Serves as the root command for all subcommands.",
+      "inputs": [],
+      "output_type": "None",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Click group is initialized and ready to dispatch to subcommands"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Registers click command group"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "click command registry",
+          "description": "Registers the main command group"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "review",
+      "description": "Review command that analyzes a file, directory, or stdin input using multiple adversarial personas. Supports provider selection, persona filtering, output formats (JSON/HTML), and parallel/sequential execution modes.",
+      "inputs": [
+        {
+          "name": "target",
+          "type_ref": "str | None",
+          "required": false,
+          "default": "",
+          "description": "Path to file or directory to review",
+          "validators": []
+        },
+        {
+          "name": "provider",
+          "type_ref": "str",
+          "required": true,
+          "default": "anthropic",
+          "description": "LLM provider choice",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "in ['anthropic', 'openai', 'gemini']",
+              "error_message": ""
+            }
+          ]
+        },
+        {
+          "name": "model",
+          "type_ref": "str | None",
+          "required": false,
+          "default": "",
+          "description": "Override model name",
+          "validators": []
+        },
+        {
+          "name": "persona",
+          "type_ref": "tuple[str, ...]",
+          "required": true,
+          "default": "()",
+          "description": "Specific persona(s) to run",
+          "validators": []
+        },
+        {
+          "name": "output",
+          "type_ref": "str | None",
+          "required": false,
+          "default": "",
+          "description": "JSON output file path",
+          "validators": []
+        },
+        {
+          "name": "html",
+          "type_ref": "str | None",
+          "required": false,
+          "default": "",
+          "description": "HTML report file path",
+          "validators": []
+        },
+        {
+          "name": "sequential",
+          "type_ref": "bool",
+          "required": true,
+          "default": "False",
+          "description": "Run personas sequentially instead of parallel",
+          "validators": []
+        },
+        {
+          "name": "no_color",
+          "type_ref": "bool",
+          "required": true,
+          "default": "False",
+          "description": "Disable terminal colors",
+          "validators": []
+        },
+        {
+          "name": "use_stdin",
+          "type_ref": "bool",
+          "required": true,
+          "default": "False",
+          "description": "Read input from stdin",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "missing_input",
+          "condition": "No target provided and stdin is a tty",
+          "error_type": "SystemExit",
+          "error_data": {
+            "exit_code": "1",
+            "message": "Error: provide a target path or use --stdin."
+          }
+        },
+        {
+          "name": "empty_input",
+          "condition": "Content is empty or only whitespace",
+          "error_type": "SystemExit",
+          "error_data": {
+            "exit_code": "1",
+            "message": "Error: empty input."
+          }
+        },
+        {
+          "name": "unknown_persona",
+          "condition": "Specified persona name not in Persona enum",
+          "error_type": "SystemExit",
+          "error_data": {
+            "exit_code": "1",
+            "message": "Error: unknown persona '{name}'. Choose from: {list}"
+          }
+        },
+        {
+          "name": "truncation_declined",
+          "condition": "Content > 200k chars and user declines truncation confirmation",
+          "error_type": "SystemExit",
+          "error_data": {
+            "exit_code": "0"
+          }
+        }
+      ],
+      "preconditions": [
+        "Either target is provided or use_stdin is True",
+        "If no target and not use_stdin, stdin must not be a tty",
+        "All specified persona names must exist in Persona enum"
+      ],
+      "postconditions": [
+        "Review is executed and results are printed to stdout",
+        "If output specified, JSON file is written",
+        "If html specified, HTML file is written"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Reads from stdin if use_stdin or target is None",
+        "Writes to stdout (click.echo)",
+        "Writes to stderr (click.echo with err=True)",
+        "Calls sys.exit on error conditions",
+        "May write JSON file if output specified",
+        "May write HTML file if html specified",
+        "Makes network calls to LLM provider",
+        "May read files/directories via load_input",
+        "May prompt user for confirmation if content > 200k chars"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "reads_file",
+          "target": "stdin or target path",
+          "description": "Reads input content"
+        },
+        {
+          "kind": "writes_file",
+          "target": "output and/or html paths",
+          "description": "Writes review results if paths specified"
+        },
+        {
+          "kind": "network_call",
+          "target": "LLM provider API",
+          "description": "Calls LLM provider during review"
+        },
+        {
+          "kind": "logging",
+          "target": "stdout/stderr",
+          "description": "Outputs progress and results"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "personas",
+      "description": "List all available personas with their metadata including name, tagline, success criteria, and dimensions.",
+      "inputs": [],
+      "output_type": "None",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "All Persona enum values and their metadata are printed to stdout"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Writes to stdout via click.echo"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "logging",
+          "target": "stdout",
+          "description": "Prints persona metadata"
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "asyncio",
+    "sys",
+    "pathlib",
+    "click",
+    "advocate.engine",
+    "advocate.models",
+    "advocate.provider",
+    "advocate.report",
+    "advocate.personas"
+  ],
+  "dependency_contracts": {
+    "advocate.engine": [
+      "load_input",
+      "review"
+    ],
+    "advocate.models": [
+      "Persona"
+    ],
+    "advocate.provider": [
+      "create_provider"
+    ],
+    "advocate.report": [
+      "print_review",
+      "write_json",
+      "write_html"
+    ],
+    "advocate.personas": [
+      "PERSONA_META"
+    ]
+  },
+  "invariants": [
+    "Content is truncated at 200,000 characters if exceeded",
+    "Default provider is 'anthropic'",
+    "Default execution mode is parallel (sequential=False)",
+    "Default is 6 personas if none specified",
+    "Stdin target is named '<stdin>' with type 'stdin'"
+  ],
+  "requires": [],
+  "processing_register": "",
+  "data_access": {
+    "reads": [
+      "filesystem",
+      "stdin"
+    ],
+    "writes": [
+      "filesystem",
+      "stdout",
+      "stderr"
+    ],
+    "rationale": "CLI reads input from files/stdin, writes output to terminal and optional JSON/HTML files",
+    "side_effects": [
+      {
+        "type": "network_call",
+        "classification": "external_api",
+        "fields": [
+          "LLM provider API endpoints"
+        ],
+        "rationale": "Review function invokes LLM provider APIs via create_provider and run_review"
+      },
+      {
+        "type": "process_exit",
+        "classification": "termination",
+        "fields": [
+          "sys.exit"
+        ],
+        "rationale": "CLI exits process on validation errors or user cancellation"
+      }
+    ]
+  },
+  "authority": {
+    "domains": [],
+    "rationale": null
+  }
+}

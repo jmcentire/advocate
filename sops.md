@@ -3,22 +3,16 @@
 ## Tech Stack
 - Language: Python 3.12+
 - Testing: pytest
-- Build: hatchling
-- CLI: click
 
 ## Standards
 - Type annotations on all public functions
-- Pydantic v2 for all data models
-- Async for LLM calls
-- Jinja2 for HTML templates
+- Prefer composition over inheritance
 
 ## Verification
-- All modules must be importable
-- Self-review must produce actionable findings
-- Good Friend returning zero findings = strong positive signal
+- All functions must have at least one test
+- Tests must be runnable without external services
+- No task is done until its contract tests pass
 
 ## Preferences
-- Prefer stdlib over third-party
-- Keep files under 400 lines
-- No premature abstraction
-- All deps MIT/Apache/BSD compatible
+- Prefer stdlib over third-party libraries
+- Keep files under 300 lines

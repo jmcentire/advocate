@@ -1,0 +1,635 @@
+{
+  "component_id": "src_advocate_engine",
+  "name": "Advocate Review Engine",
+  "description": "Core review orchestration engine that runs six adversarial personas against input content, collects findings, detects disagreements between personas, and generates comprehensive review reports. Handles LLM interactions, JSON parsing, prompt injection sanitization, and file/directory loading.",
+  "version": 1,
+  "types": [
+    {
+      "name": "tuple_list_dict_str",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "findings",
+          "type_ref": "list[dict]",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "summary",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Return type for _parse_findings_json: (list of finding dicts, summary text)",
+      "owner_component": ""
+    },
+    {
+      "name": "tuple_content_target_type",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "target",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "target_type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Return type for load_input: (content, target path, target type)",
+      "owner_component": ""
+    }
+  ],
+  "functions": [
+    {
+      "name": "_sanitize_content_for_prompt",
+      "description": "Strip prompt injection patterns from user content before embedding in prompts. Replaces patterns like 'ignore previous instructions', 'you are now', and 'system:' with '[CONTENT_REDACTED]'.",
+      "inputs": [
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Raw user-provided content that may contain injection attempts",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "All case-insensitive matches of prompt injection patterns are replaced with '[CONTENT_REDACTED]'",
+        "Original string structure preserved except for replaced patterns"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "_parse_findings_json",
+      "description": "Robustly extract JSON findings array from LLM response. Tries markdown code blocks first, then bracket-matched JSON arrays. Returns (parsed_items, summary_text). On failure returns ([], full_text).",
+      "inputs": [
+        {
+          "name": "text",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Raw LLM response text potentially containing JSON",
+          "validators": []
+        }
+      ],
+      "output_type": "tuple[list[dict], str]",
+      "error_cases": [
+        {
+          "name": "json_decode_error_caught",
+          "condition": "JSON parsing fails for candidate blocks",
+          "error_type": "json.JSONDecodeError",
+          "error_data": {
+            "handling": "Exception caught internally, returns ([], text)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returns tuple of (list[dict], str)",
+        "If parsing succeeds, first element is list of dicts, second is remaining text",
+        "If parsing fails, returns ([], original_text)"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "_run_persona",
+      "description": "Run a single persona's review against content. Builds prompts from persona metadata, sanitizes content, calls LLM, parses JSON findings, and returns PersonaReport with findings, costs, and timing.",
+      "inputs": [
+        {
+          "name": "persona",
+          "type_ref": "Persona",
+          "required": true,
+          "default": "",
+          "description": "Persona enum value",
+          "validators": []
+        },
+        {
+          "name": "llm",
+          "type_ref": "LLMProvider",
+          "required": true,
+          "default": "",
+          "description": "LLM provider instance",
+          "validators": []
+        },
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Content to review",
+          "validators": []
+        },
+        {
+          "name": "target_description",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Description of the review target",
+          "validators": []
+        }
+      ],
+      "output_type": "PersonaReport",
+      "error_cases": [
+        {
+          "name": "llm_completion_exception",
+          "condition": "llm.complete() raises any exception",
+          "error_type": "Exception",
+          "error_data": {
+            "handling": "Caught, logged, returns PersonaReport with error summary"
+          }
+        },
+        {
+          "name": "key_error_meta_lookup",
+          "condition": "persona not in PERSONA_META or SYSTEM_PROMPTS",
+          "error_type": "KeyError",
+          "error_data": {
+            "handling": "Not caught, will propagate"
+          }
+        }
+      ],
+      "preconditions": [
+        "persona exists in PERSONA_META dictionary",
+        "persona exists in SYSTEM_PROMPTS dictionary"
+      ],
+      "postconditions": [
+        "Returns PersonaReport with persona, findings list, summary, duration_ms",
+        "If LLM call succeeds, includes input_tokens, output_tokens, estimated_cost_usd",
+        "If LLM call fails, returns PersonaReport with error summary and duration_ms"
+      ],
+      "idempotent": false,
+      "is_async": true,
+      "side_effects": [
+        "Calls llm.complete() which makes network requests",
+        "Logs error if LLM call fails",
+        "Logs warning if JSON parsing fails",
+        "Calls transmogrify() which may make network requests"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "llm.complete",
+          "description": "Calls LLM API to generate review"
+        },
+        {
+          "kind": "network_call",
+          "target": "transmogrify",
+          "description": "May transform prompt via external service"
+        },
+        {
+          "kind": "logging",
+          "target": "logger.error",
+          "description": "Logs if persona execution fails"
+        },
+        {
+          "kind": "logging",
+          "target": "logger.warning",
+          "description": "Logs if JSON parsing fails"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "_detect_disagreements",
+      "description": "Find cases where personas disagree on severity for similar findings. Compares all pairs of findings across reports, identifies those with title overlap >= 0.3 and severity difference >= 2 levels.",
+      "inputs": [
+        {
+          "name": "reports",
+          "type_ref": "list[PersonaReport]",
+          "required": true,
+          "default": "",
+          "description": "List of persona reports to compare",
+          "validators": []
+        }
+      ],
+      "output_type": "list[Disagreement]",
+      "error_cases": [
+        {
+          "name": "value_error_severity_index",
+          "condition": "finding.severity not in Severity enum",
+          "error_type": "ValueError",
+          "error_data": {
+            "handling": "Not caught, will propagate from list().index()"
+          }
+        },
+        {
+          "name": "key_error_persona_meta",
+          "condition": "finding.persona not in PERSONA_META",
+          "error_type": "KeyError",
+          "error_data": {
+            "handling": "Not caught, will propagate"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returns list of Disagreement objects",
+        "Each disagreement has severity gap of at least 2 levels",
+        "Each disagreement has title overlap of at least 0.3"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "_word_overlap",
+      "description": "Calculate word-level Jaccard similarity between two strings. Returns ratio of intersection to union of word sets (case-insensitive).",
+      "inputs": [
+        {
+          "name": "a",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "First string",
+          "validators": []
+        },
+        {
+          "name": "b",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Second string",
+          "validators": []
+        }
+      ],
+      "output_type": "float",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returns float between 0.0 and 1.0",
+        "Returns 0.0 if either input is empty or contains no words",
+        "Returns 1.0 if both inputs have identical word sets"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "review",
+      "description": "Run an Advocate review. Executes persona reviews (in parallel or sequential), detects disagreements, aggregates findings/costs, and returns comprehensive Review object with timing data.",
+      "inputs": [
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Content to review",
+          "validators": []
+        },
+        {
+          "name": "target",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Target identifier (file path, directory, etc.)",
+          "validators": []
+        },
+        {
+          "name": "target_type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Type of target (file, directory, etc.)",
+          "validators": []
+        },
+        {
+          "name": "llm",
+          "type_ref": "LLMProvider",
+          "required": true,
+          "default": "",
+          "description": "LLM provider instance",
+          "validators": []
+        },
+        {
+          "name": "personas",
+          "type_ref": "list[Persona] | None",
+          "required": false,
+          "default": "",
+          "description": "List of personas to run, defaults to all personas",
+          "validators": []
+        },
+        {
+          "name": "parallel",
+          "type_ref": "bool",
+          "required": false,
+          "default": "True",
+          "description": "Whether to run personas in parallel (default True)",
+          "validators": []
+        }
+      ],
+      "output_type": "Review",
+      "error_cases": [
+        {
+          "name": "exception_in_sequential_mode",
+          "condition": "parallel=False and _run_persona raises exception",
+          "error_type": "Exception",
+          "error_data": {
+            "handling": "Not caught, will propagate"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returns Review object with persona_reports, disagreements, total_findings, total_cost_usd",
+        "Review.started_at is ISO8601 UTC timestamp",
+        "Review.completed_at is ISO8601 UTC timestamp",
+        "All personas in input list have corresponding PersonaReport (may contain errors)",
+        "If parallel=True, exceptions from personas are captured and converted to error reports"
+      ],
+      "idempotent": false,
+      "is_async": true,
+      "side_effects": [
+        "Calls _run_persona for each persona (makes LLM API calls)",
+        "Logs errors if parallel execution produces exceptions",
+        "Creates multiple concurrent tasks if parallel=True"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "_run_persona",
+          "description": "Calls LLM APIs for each persona"
+        },
+        {
+          "kind": "logging",
+          "target": "logger.error",
+          "description": "Logs if persona raises exception in parallel mode"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "_is_binary",
+      "description": "Check if a file is binary by looking for null bytes in first 1024 bytes.",
+      "inputs": [
+        {
+          "name": "path",
+          "type_ref": "Path",
+          "required": true,
+          "default": "",
+          "description": "Path object to check",
+          "validators": []
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "file_read_exception",
+          "condition": "Any exception reading file",
+          "error_type": "Exception",
+          "error_data": {
+            "handling": "Caught, returns True (treats unreadable as binary)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returns True if file contains null byte in first 1024 bytes",
+        "Returns True if any exception occurs reading file",
+        "Returns False if file is text (no null bytes found)"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "reads_file",
+          "target": "path",
+          "description": "Reads first 1024 bytes of file"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "load_input",
+      "description": "Load review input from a path. Handles both files and directories. For directories, recursively collects source files (filtered by extension whitelist), skips binaries and blacklisted paths. Returns (content, target, target_type).",
+      "inputs": [
+        {
+          "name": "path",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "File or directory path to load",
+          "validators": []
+        }
+      ],
+      "output_type": "tuple[str, str, str]",
+      "error_cases": [
+        {
+          "name": "file_not_found",
+          "condition": "Path does not exist or is neither file nor directory",
+          "error_type": "FileNotFoundError",
+          "error_data": {
+            "message": "Not found: {path}"
+          }
+        },
+        {
+          "name": "binary_file_error",
+          "condition": "Single file path points to binary file",
+          "error_type": "ValueError",
+          "error_data": {
+            "message": "Binary file not supported: {path}"
+          }
+        },
+        {
+          "name": "encoding_error",
+          "condition": "File is not UTF-8 encoded",
+          "error_type": "ValueError",
+          "error_data": {
+            "message": "File encoding error: {path}. Only UTF-8 is supported."
+          }
+        },
+        {
+          "name": "no_source_files",
+          "condition": "Directory contains no supported source files",
+          "error_type": "ValueError",
+          "error_data": {
+            "message": "No source files found in {path}. Supported: {extensions}"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returns tuple of (content_string, resolved_path_string, type_string)",
+        "For directories: type='directory', content is concatenated source files with headers",
+        "For files: type='file', content is file text",
+        "All paths are resolved to absolute paths",
+        "Path traversal attempts are blocked"
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Reads file(s) from filesystem",
+        "Logs info about skipped files if any"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "reads_file",
+          "target": "path and subdirectories",
+          "description": "Reads files from filesystem"
+        },
+        {
+          "kind": "logging",
+          "target": "logger.info",
+          "description": "Logs skipped files"
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "asyncio",
+    "json",
+    "logging",
+    "re",
+    "time",
+    "datetime",
+    "pathlib",
+    "advocate.models",
+    "advocate.personas",
+    "advocate.provider"
+  ],
+  "dependency_contracts": {
+    "advocate.models": [
+      "Dimension",
+      "Disagreement",
+      "Finding",
+      "Persona",
+      "PersonaReport",
+      "Review",
+      "Severity"
+    ],
+    "advocate.personas": [
+      "PERSONA_META",
+      "SYSTEM_PROMPTS"
+    ],
+    "advocate.provider": [
+      "LLMProvider",
+      "estimate_cost",
+      "transmogrify"
+    ]
+  },
+  "invariants": [
+    "Prompt injection patterns are always sanitized before LLM submission",
+    "PersonaReport always includes persona and duration_ms fields",
+    "Review aggregates costs and findings from all persona reports",
+    "Disagreements require minimum 0.3 title overlap and 2-level severity gap",
+    "Supported file extensions: .py, .ts, .js, .tsx, .jsx, .go, .rs, .java, .md, .yaml, .yml, .toml, .json",
+    "Blacklisted directory components: .git, __pycache__, node_modules",
+    "All timestamps in Review are ISO8601 UTC format",
+    "Path traversal protection: resolved paths must be under base directory"
+  ],
+  "requires": [
+    "PERSONA_META dictionary must contain entries for all Persona enum values",
+    "SYSTEM_PROMPTS dictionary must contain entries for all Persona enum values",
+    "Severity enum must have consistent ordering for disagreement detection",
+    "LLMProvider.complete() must return tuple of (response_str, input_tokens, output_tokens)"
+  ],
+  "processing_register": "",
+  "data_access": {
+    "reads": [
+      "filesystem"
+    ],
+    "writes": [],
+    "rationale": "Reads source code files from filesystem for review. Writes logs via Python logging.",
+    "side_effects": [
+      {
+        "type": "file_read",
+        "classification": "input_loading",
+        "fields": [
+          "path",
+          "directory"
+        ],
+        "rationale": "load_input and _is_binary read files for review content"
+      },
+      {
+        "type": "network_call",
+        "classification": "external_api",
+        "fields": [
+          "llm.complete",
+          "transmogrify"
+        ],
+        "rationale": "_run_persona makes LLM API calls for content analysis"
+      },
+      {
+        "type": "logging",
+        "classification": "observability",
+        "fields": [
+          "error",
+          "warning",
+          "info"
+        ],
+        "rationale": "Logs errors, warnings, and file skip information"
+      }
+    ]
+  },
+  "authority": {
+    "domains": [],
+    "rationale": null
+  }
+}

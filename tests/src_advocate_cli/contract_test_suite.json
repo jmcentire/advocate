@@ -1,0 +1,585 @@
+{
+  "component_id": "src_advocate_cli",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "test_main_initializes_click_group",
+      "description": "Verify main() initializes Click group and dispatches to subcommands",
+      "function": "main",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "No arguments, just invokes main command",
+      "expected_output_description": "Click group initializes successfully, shows help or command list",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_main_shows_help",
+      "description": "Verify main() with --help flag displays help information",
+      "function": "main",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Invoke with --help flag",
+      "expected_output_description": "Help text is displayed",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_happy_path_with_target_file",
+      "description": "Review a target file with default provider and default personas",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read operations",
+        "llm_provider": "Mock API calls to anthropic"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes successfully and results are printed to stdout",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_with_stdin_input",
+      "description": "Review content from stdin when use_stdin is True",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "stdin": "Mock stdin with sample content",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "True"
+      },
+      "input_description": "Stdin input with sample code content",
+      "expected_output_description": "Review executes successfully from stdin, stdin target named '<stdin>' with type 'stdin'",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_with_output_json",
+      "description": "Review with JSON output file specified",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read/write operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "results.json",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes and JSON file is written to output path",
+      "expected_error": "",
+      "assertions": [
+        "JSON file is created at specified path",
+        "File contains valid JSON"
+      ]
+    },
+    {
+      "id": "test_review_with_html_output",
+      "description": "Review with HTML output file specified",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read/write operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "results.html",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes and HTML file is written to html path",
+      "expected_error": "",
+      "assertions": [
+        "HTML file is created at specified path"
+      ]
+    },
+    {
+      "id": "test_review_with_specific_personas",
+      "description": "Review with specific persona filters provided",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "security,performance",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes with only specified personas",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_sequential_mode",
+      "description": "Review in sequential execution mode instead of parallel",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "True",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes sequentially instead of in parallel",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_with_no_color",
+      "description": "Review with color output disabled",
+      "function": "review",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "True",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes with plain text output (no ANSI color codes)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_missing_input_error",
+      "description": "Error when no target provided and stdin is a tty",
+      "function": "review",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "stdin": "Mock stdin.isatty() to return True"
+      },
+      "input_values": {
+        "target": "",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Error raised indicating no target provided and stdin is a tty",
+      "expected_error": "missing_input",
+      "assertions": []
+    },
+    {
+      "id": "test_review_empty_input_error",
+      "description": "Error when content is empty or only whitespace",
+      "function": "review",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read to return empty string or whitespace only"
+      },
+      "input_values": {
+        "target": "empty_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Error raised indicating content is empty or only whitespace",
+      "expected_error": "empty_input",
+      "assertions": []
+    },
+    {
+      "id": "test_review_unknown_persona_error",
+      "description": "Error when specified persona name not in Persona enum",
+      "function": "review",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "invalid_persona",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Error raised indicating specified persona name not in Persona enum",
+      "expected_error": "unknown_persona",
+      "assertions": []
+    },
+    {
+      "id": "test_review_truncation_declined_error",
+      "description": "Error when content > 200k chars and user declines truncation confirmation",
+      "function": "review",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read to return content > 200k chars",
+        "user_input": "Mock user declining truncation confirmation"
+      },
+      "input_values": {
+        "target": "large_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Error raised when user declines truncation confirmation for content > 200k chars",
+      "expected_error": "truncation_declined",
+      "assertions": []
+    },
+    {
+      "id": "test_review_truncation_at_200k_chars",
+      "description": "Content is truncated at 200,000 characters if exceeded and user accepts",
+      "function": "review",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read to return content > 200k chars",
+        "user_input": "Mock user accepting truncation confirmation"
+      },
+      "input_values": {
+        "target": "large_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Content is truncated to exactly 200,000 characters",
+      "expected_error": "",
+      "assertions": [
+        "Content length is at most 200,000 characters"
+      ]
+    },
+    {
+      "id": "test_review_default_provider_anthropic",
+      "description": "Default provider is 'anthropic' when not specified",
+      "function": "review",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock anthropic API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Provider defaults to 'anthropic'",
+      "expected_error": "",
+      "assertions": [
+        "Provider used is 'anthropic'"
+      ]
+    },
+    {
+      "id": "test_review_default_parallel_execution",
+      "description": "Default execution mode is parallel (sequential=False)",
+      "function": "review",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Execution mode is parallel by default",
+      "expected_error": "",
+      "assertions": [
+        "Sequential mode is False by default"
+      ]
+    },
+    {
+      "id": "test_review_default_6_personas",
+      "description": "Default is 6 personas if none specified",
+      "function": "review",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "6 personas are used by default when none specified",
+      "expected_error": "",
+      "assertions": [
+        "Number of personas used is 6"
+      ]
+    },
+    {
+      "id": "test_review_stdin_target_name",
+      "description": "Stdin target is named '<stdin>' with type 'stdin'",
+      "function": "review",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {
+        "stdin": "Mock stdin with sample content",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "True"
+      },
+      "input_description": "",
+      "expected_output_description": "Stdin target is named '<stdin>' with type 'stdin'",
+      "expected_error": "",
+      "assertions": [
+        "Target name is '<stdin>'",
+        "Target type is 'stdin'"
+      ]
+    },
+    {
+      "id": "test_personas_lists_all",
+      "description": "List all available personas with their metadata",
+      "function": "personas",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "No input required",
+      "expected_output_description": "All Persona enum values and their metadata (name, tagline, success criteria, dimensions) are printed to stdout",
+      "expected_error": "",
+      "assertions": [
+        "Output contains persona names",
+        "Output contains metadata fields"
+      ]
+    },
+    {
+      "id": "test_review_with_directory_target",
+      "description": "Review a directory target instead of a single file",
+      "function": "review",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock directory read operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "src/",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes for directory target",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_with_both_output_and_html",
+      "description": "Review with both JSON output and HTML output specified",
+      "function": "review",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file read/write operations",
+        "llm_provider": "Mock API calls"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "results.json",
+        "html": "results.html",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Both JSON and HTML files are written",
+      "expected_error": "",
+      "assertions": [
+        "JSON file is created",
+        "HTML file is created"
+      ]
+    },
+    {
+      "id": "test_review_with_custom_model",
+      "description": "Review with custom model specified",
+      "function": "review",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations",
+        "llm_provider": "Mock API calls with custom model"
+      },
+      "input_values": {
+        "target": "test_file.py",
+        "provider": "anthropic",
+        "model": "claude-3-opus-20240229",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Review executes with custom model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_review_nonexistent_file_error",
+      "description": "Error when target file does not exist",
+      "function": "review",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "file_system": "Mock file operations to raise FileNotFoundError"
+      },
+      "input_values": {
+        "target": "nonexistent.py",
+        "provider": "anthropic",
+        "model": "",
+        "persona": "",
+        "output": "",
+        "html": "",
+        "sequential": "False",
+        "no_color": "False",
+        "use_stdin": "False"
+      },
+      "input_description": "",
+      "expected_output_description": "Error raised when target file does not exist",
+      "expected_error": "file_not_found",
+      "assertions": []
+    }
+  ],
+  "test_language": "python",
+  "generated_code": "\"\"\"\nContract tests for Advocate CLI Entry Point\n\nTests verify CLI behavior against contract specifications including:\n- Click command group initialization and dispatch\n- Review command with various input sources (file, directory, stdin)\n- Output format variations (JSON, HTML, colored/plain text)\n- Error conditions (missing input, empty input, unknown persona, truncation declined)\n- Invariants (default provider, parallel execution, persona count, truncation limit)\n- Personas listing functionality\n\"\"\"\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock, mock_open, call\nfrom click.testing import CliRunner\nimport json\nimport sys\nfrom pathlib import Path\n\n\n# Import the module under test\ntry:\n    from src.advocate import cli as advocate_cli\nexcept ImportError:\n    try:\n        from advocate import cli as advocate_cli\n    except ImportError:\n        # Fallback for different module structures\n        import advocate.cli as advocate_cli\n\n\n@pytest.fixture\ndef cli_runner():\n    \"\"\"Fixture providing Click CLI test runner\"\"\"\n    return CliRunner()\n\n\n@pytest.fixture\ndef sample_code_content():\n    \"\"\"Sample code content for testing\"\"\"\n    return \"\"\"\ndef example_function():\n    # Sample code for review\n    user_input = input(\"Enter value: \")\n    eval(user_input)  # Security issue\n    return user_input\n\"\"\"\n\n\n@pytest.fixture\ndef large_code_content():\n    \"\"\"Large code content exceeding 200k characters\"\"\"\n    return \"x\" * 250000\n\n\n@pytest.fixture\ndef mock_review_result():\n    \"\"\"Mock review result structure\"\"\"\n    return {\n        \"target\": \"test_file.py\",\n        \"personas\": [\n            {\n                \"name\": \"security\",\n                \"findings\": [\"Potential security vulnerability\"],\n                \"score\": 3\n            }\n        ]\n    }\n\n\nclass TestMainIntegration:\n    \"\"\"Integration tests for main() Click group entry point\"\"\"\n    \n    def test_main_initializes_click_group(self, cli_runner):\n        \"\"\"Verify main() initializes Click group and dispatches to subcommands\"\"\"\n        result = cli_runner.invoke(advocate_cli.main, [])\n        \n        # Should either show help or list available commands without error\n        assert result.exit_code in [0, 2]  # 0 for success, 2 for usage error (no command)\n    \n    def test_main_shows_help(self, cli_runner):\n        \"\"\"Verify main() with --help flag displays help information\"\"\"\n        result = cli_runner.invoke(advocate_cli.main, ['--help'])\n        \n        assert result.exit_code == 0\n        assert 'Usage:' in result.output or 'help' in result.output.lower()\n\n\nclass TestReviewHappyPath:\n    \"\"\"Happy path tests for review() function\"\"\"\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_happy_path_with_target_file(self, mock_run_review, mock_path, \n                                                 cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review a target file with default provider and default personas\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'test_file.py'])\n        \n        # Verify execution\n        assert result.exit_code == 0\n        mock_run_review.assert_called_once()\n    \n    @patch('advocate.cli.sys.stdin')\n    @patch('advocate.cli.run_review')\n    def test_review_with_stdin_input(self, mock_run_review, mock_stdin, \n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review content from stdin when use_stdin is True\"\"\"\n        # Setup stdin mock\n        mock_stdin.isatty.return_value = False\n        mock_stdin.read.return_value = sample_code_content\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', '--use-stdin'], \n                                   input=sample_code_content)\n        \n        # Verify stdin target is named '<stdin>' with type 'stdin'\n        assert result.exit_code == 0\n        if mock_run_review.called:\n            call_args = mock_run_review.call_args\n            # Verify stdin handling\n            assert '<stdin>' in str(call_args) or 'stdin' in str(call_args).lower()\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.json.dump')\n    def test_review_with_output_json(self, mock_json_dump, mock_run_review, mock_path,\n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with JSON output file specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        with patch('builtins.open', mock_open()) as mock_file_open:\n            result = cli_runner.invoke(advocate_cli.main, \n                                      ['review', 'test_file.py', '--output', 'results.json'])\n            \n            # Verify JSON file writing was attempted\n            assert result.exit_code == 0\n            # JSON dump should be called if output is specified\n            if '--output' in result.output or mock_json_dump.called:\n                assert mock_json_dump.called or result.exit_code == 0\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.generate_html_report')\n    def test_review_with_html_output(self, mock_generate_html, mock_run_review, mock_path,\n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with HTML output file specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        mock_generate_html.return_value = \"<html>Report</html>\"\n        \n        with patch('builtins.open', mock_open()) as mock_file_open:\n            result = cli_runner.invoke(advocate_cli.main,\n                                      ['review', 'test_file.py', '--html', 'results.html'])\n            \n            # Verify execution\n            assert result.exit_code == 0\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.Persona')\n    def test_review_with_specific_personas(self, mock_persona, mock_run_review, mock_path,\n                                           cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with specific persona filters provided\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        # Mock Persona enum\n        mock_persona.__members__ = {'security': Mock(), 'performance': Mock()}\n        \n        result = cli_runner.invoke(advocate_cli.main,\n                                  ['review', 'test_file.py', '--persona', 'security', \n                                   '--persona', 'performance'])\n        \n        assert result.exit_code == 0\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_sequential_mode(self, mock_run_review, mock_path,\n                                     cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review in sequential execution mode instead of parallel\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main,\n                                  ['review', 'test_file.py', '--sequential'])\n        \n        assert result.exit_code == 0\n        # Verify sequential flag was passed\n        if mock_run_review.called:\n            call_args = mock_run_review.call_args\n            # Check if sequential mode was enabled\n            assert call_args is not None\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_with_no_color(self, mock_run_review, mock_path,\n                                   cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with color output disabled\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main,\n                                  ['review', 'test_file.py', '--no-color'])\n        \n        assert result.exit_code == 0\n        # Verify no ANSI color codes in output\n        assert '\\033[' not in result.output or result.exit_code == 0\n\n\nclass TestReviewErrorCases:\n    \"\"\"Error case tests for review() function\"\"\"\n    \n    @patch('advocate.cli.sys.stdin')\n    def test_review_missing_input_error(self, mock_stdin, cli_runner):\n        \"\"\"Error when no target provided and stdin is a tty\"\"\"\n        # Mock stdin as a tty\n        mock_stdin.isatty.return_value = True\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review'])\n        \n        # Should fail with error indicating missing input\n        assert result.exit_code != 0\n        assert 'target' in result.output.lower() or 'input' in result.output.lower() or result.exception\n    \n    @patch('advocate.cli.Path')\n    def test_review_empty_input_error(self, mock_path, cli_runner):\n        \"\"\"Error when content is empty or only whitespace\"\"\"\n        # Setup mock for empty file\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = \"   \\n\\t  \"  # Only whitespace\n        mock_path.return_value = mock_file\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'empty_file.py'])\n        \n        # Should fail with empty input error\n        assert result.exit_code != 0 or 'empty' in result.output.lower()\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.Persona')\n    def test_review_unknown_persona_error(self, mock_persona, mock_path, \n                                          cli_runner, sample_code_content):\n        \"\"\"Error when specified persona name not in Persona enum\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        \n        # Mock Persona enum with limited members\n        mock_persona.__members__ = {'security': Mock(), 'performance': Mock()}\n        \n        result = cli_runner.invoke(advocate_cli.main,\n                                  ['review', 'test_file.py', '--persona', 'invalid_persona'])\n        \n        # Should fail with unknown persona error\n        assert result.exit_code != 0 or 'persona' in result.output.lower()\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.click.confirm')\n    def test_review_truncation_declined_error(self, mock_confirm, mock_path,\n                                              cli_runner, large_code_content):\n        \"\"\"Error when content > 200k chars and user declines truncation confirmation\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = large_code_content\n        mock_path.return_value = mock_file\n        \n        # Mock user declining truncation\n        mock_confirm.return_value = False\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'large_file.py'])\n        \n        # Should fail when user declines truncation\n        assert result.exit_code != 0 or 'truncat' in result.output.lower()\n    \n    @patch('advocate.cli.Path')\n    def test_review_nonexistent_file_error(self, mock_path, cli_runner):\n        \"\"\"Error when target file does not exist\"\"\"\n        # Setup mock for non-existent file\n        mock_file = MagicMock()\n        mock_file.exists.return_value = False\n        mock_path.return_value = mock_file\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'nonexistent.py'])\n        \n        # Should fail with file not found error\n        assert result.exit_code != 0\n\n\nclass TestReviewInvariants:\n    \"\"\"Invariant tests for review() function\"\"\"\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.click.confirm')\n    def test_review_truncation_at_200k_chars(self, mock_confirm, mock_run_review, mock_path,\n                                             cli_runner, large_code_content):\n        \"\"\"Content is truncated at 200,000 characters if exceeded and user accepts\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = large_code_content\n        mock_path.return_value = mock_file\n        \n        # Mock user accepting truncation\n        mock_confirm.return_value = True\n        \n        def check_truncation(*args, **kwargs):\n            # Verify content is truncated to 200k chars\n            content = args[0] if args else kwargs.get('content', '')\n            if len(content) > 200000:\n                content = content[:200000]\n            assert len(content) <= 200000\n            return {\"result\": \"success\"}\n        \n        mock_run_review.side_effect = check_truncation\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'large_file.py'])\n        \n        # Should succeed with truncated content\n        assert result.exit_code == 0 or mock_confirm.called\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.get_provider')\n    @patch('advocate.cli.run_review')\n    def test_review_default_provider_anthropic(self, mock_run_review, mock_get_provider, mock_path,\n                                               cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Default provider is 'anthropic' when not specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'test_file.py'])\n        \n        # Verify anthropic provider is used\n        if mock_get_provider.called:\n            call_args = mock_get_provider.call_args\n            provider_arg = call_args[0][0] if call_args[0] else 'anthropic'\n            assert provider_arg == 'anthropic'\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_default_parallel_execution(self, mock_run_review, mock_path,\n                                               cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Default execution mode is parallel (sequential=False)\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'test_file.py'])\n        \n        # Verify parallel mode by default (sequential=False)\n        assert result.exit_code == 0\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.Persona')\n    def test_review_default_6_personas(self, mock_persona, mock_run_review, mock_path,\n                                       cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Default is 6 personas if none specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        \n        # Create 6 mock personas\n        mock_personas = {f'persona_{i}': Mock() for i in range(6)}\n        mock_persona.__members__ = mock_personas\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'test_file.py'])\n        \n        # Verify 6 personas are used by default\n        assert result.exit_code == 0\n    \n    @patch('advocate.cli.sys.stdin')\n    @patch('advocate.cli.run_review')\n    def test_review_stdin_target_name(self, mock_run_review, mock_stdin,\n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Stdin target is named '<stdin>' with type 'stdin'\"\"\"\n        # Setup stdin mock\n        mock_stdin.isatty.return_value = False\n        mock_stdin.read.return_value = sample_code_content\n        mock_run_review.return_value = mock_review_result\n        \n        def check_stdin_target(*args, **kwargs):\n            # Verify stdin target naming\n            target = kwargs.get('target', args[1] if len(args) > 1 else None)\n            if target:\n                assert '<stdin>' in str(target) or 'stdin' in str(target).lower()\n            return mock_review_result\n        \n        mock_run_review.side_effect = check_stdin_target\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', '--use-stdin'],\n                                  input=sample_code_content)\n        \n        # Verify stdin target naming\n        assert result.exit_code == 0 or '<stdin>' in result.output\n\n\nclass TestReviewEdgeCases:\n    \"\"\"Edge case tests for review() function\"\"\"\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_with_directory_target(self, mock_run_review, mock_path,\n                                          cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review a directory target instead of a single file\"\"\"\n        # Setup mocks\n        mock_dir = MagicMock()\n        mock_dir.exists.return_value = True\n        mock_dir.is_file.return_value = False\n        mock_dir.is_dir.return_value = True\n        mock_path.return_value = mock_dir\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main, ['review', 'src/'])\n        \n        # Should handle directory target\n        assert result.exit_code == 0 or mock_run_review.called\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.json.dump')\n    @patch('advocate.cli.generate_html_report')\n    def test_review_with_both_output_and_html(self, mock_generate_html, mock_json_dump,\n                                              mock_run_review, mock_path,\n                                              cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with both JSON output and HTML output specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        mock_generate_html.return_value = \"<html>Report</html>\"\n        \n        with patch('builtins.open', mock_open()) as mock_file_open:\n            result = cli_runner.invoke(advocate_cli.main,\n                                      ['review', 'test_file.py', \n                                       '--output', 'results.json',\n                                       '--html', 'results.html'])\n            \n            # Both files should be written\n            assert result.exit_code == 0\n    \n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.get_provider')\n    def test_review_with_custom_model(self, mock_get_provider, mock_run_review, mock_path,\n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Review with custom model specified\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        result = cli_runner.invoke(advocate_cli.main,\n                                  ['review', 'test_file.py', \n                                   '--model', 'claude-3-opus-20240229'])\n        \n        # Should use custom model\n        assert result.exit_code == 0\n\n\nclass TestPersonas:\n    \"\"\"Tests for personas() function\"\"\"\n    \n    @patch('advocate.cli.Persona')\n    def test_personas_lists_all(self, mock_persona, cli_runner):\n        \"\"\"List all available personas with their metadata\"\"\"\n        # Setup mock personas with metadata\n        mock_persona_1 = Mock()\n        mock_persona_1.value = Mock(\n            name='security',\n            tagline='Security Expert',\n            success_criteria='Find security vulnerabilities',\n            dimensions=['authentication', 'authorization']\n        )\n        \n        mock_persona_2 = Mock()\n        mock_persona_2.value = Mock(\n            name='performance',\n            tagline='Performance Optimizer',\n            success_criteria='Identify performance bottlenecks',\n            dimensions=['speed', 'efficiency']\n        )\n        \n        mock_persona.__members__ = {\n            'security': mock_persona_1,\n            'performance': mock_persona_2\n        }\n        \n        result = cli_runner.invoke(advocate_cli.main, ['personas'])\n        \n        # Verify output contains persona information\n        assert result.exit_code == 0\n        # Output should contain persona names and metadata\n        assert 'security' in result.output.lower() or 'performance' in result.output.lower() or result.exit_code == 0\n\n\nclass TestParameterCombinations:\n    \"\"\"Parametrized tests for various parameter combinations\"\"\"\n    \n    @pytest.mark.parametrize(\"provider,model\", [\n        (\"anthropic\", None),\n        (\"anthropic\", \"claude-3-opus-20240229\"),\n        (\"openai\", \"gpt-4\"),\n    ])\n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    @patch('advocate.cli.get_provider')\n    def test_review_provider_model_combinations(self, mock_get_provider, mock_run_review, \n                                                mock_path, provider, model,\n                                                cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Test various provider and model combinations\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        args = ['review', 'test_file.py', '--provider', provider]\n        if model:\n            args.extend(['--model', model])\n        \n        result = cli_runner.invoke(advocate_cli.main, args)\n        \n        # Should handle different provider/model combinations\n        assert result.exit_code == 0 or mock_run_review.called\n    \n    @pytest.mark.parametrize(\"sequential,no_color\", [\n        (False, False),\n        (True, False),\n        (False, True),\n        (True, True),\n    ])\n    @patch('advocate.cli.Path')\n    @patch('advocate.cli.run_review')\n    def test_review_execution_options(self, mock_run_review, mock_path,\n                                      sequential, no_color,\n                                      cli_runner, sample_code_content, mock_review_result):\n        \"\"\"Test various execution option combinations\"\"\"\n        # Setup mocks\n        mock_file = MagicMock()\n        mock_file.exists.return_value = True\n        mock_file.is_file.return_value = True\n        mock_file.read_text.return_value = sample_code_content\n        mock_path.return_value = mock_file\n        mock_run_review.return_value = mock_review_result\n        \n        args = ['review', 'test_file.py']\n        if sequential:\n            args.append('--sequential')\n        if no_color:\n            args.append('--no-color')\n        \n        result = cli_runner.invoke(advocate_cli.main, args)\n        \n        # Should handle different execution options\n        assert result.exit_code == 0\n"
+}

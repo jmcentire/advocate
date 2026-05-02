@@ -1,0 +1,393 @@
+{
+  "component_id": "src_advocate_models",
+  "name": "Advocate Data Models",
+  "description": "Data models for Advocate reviews. Defines Pydantic models and enums for representing multi-persona adversarial code review results, including findings, persona reports, disagreements, and complete review artifacts.",
+  "version": 1,
+  "types": [
+    {
+      "name": "Persona",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "red_team",
+        "adversarial",
+        "sage",
+        "user",
+        "sme",
+        "good_friend"
+      ],
+      "inner_types": [],
+      "description": "Enumeration of reviewer personas that can conduct adversarial reviews",
+      "owner_component": ""
+    },
+    {
+      "name": "Severity",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ],
+      "inner_types": [],
+      "description": "Severity levels for findings",
+      "owner_component": ""
+    },
+    {
+      "name": "Dimension",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "security",
+        "data_corruption",
+        "injection",
+        "exploitation",
+        "edge_cases",
+        "race_conditions",
+        "failure_modes",
+        "wrong_assumptions",
+        "backward_compatibility",
+        "blast_radius",
+        "financial_risk",
+        "three_am_test",
+        "design",
+        "concept"
+      ],
+      "inner_types": [],
+      "description": "Review dimensions or categories for findings",
+      "owner_component": ""
+    },
+    {
+      "name": "Finding",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "persona",
+          "type_ref": "Persona",
+          "required": true,
+          "default": "",
+          "description": "Which persona identified this finding",
+          "validators": []
+        },
+        {
+          "name": "severity",
+          "type_ref": "Severity",
+          "required": true,
+          "default": "",
+          "description": "Severity level of the finding",
+          "validators": []
+        },
+        {
+          "name": "dimension",
+          "type_ref": "Dimension",
+          "required": true,
+          "default": "",
+          "description": "Review dimension this finding belongs to",
+          "validators": []
+        },
+        {
+          "name": "title",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Brief title of the finding",
+          "validators": []
+        },
+        {
+          "name": "detail",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Detailed description of the finding",
+          "validators": []
+        },
+        {
+          "name": "evidence",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "Supporting evidence for the finding",
+          "validators": []
+        },
+        {
+          "name": "recommendation",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "Recommended remediation",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A single finding from one persona's review",
+      "owner_component": ""
+    },
+    {
+      "name": "PersonaReport",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "persona",
+          "type_ref": "Persona",
+          "required": true,
+          "default": "",
+          "description": "The persona that conducted this review",
+          "validators": []
+        },
+        {
+          "name": "findings",
+          "type_ref": "list[Finding]",
+          "required": false,
+          "default": "[]",
+          "description": "All findings from this persona",
+          "validators": []
+        },
+        {
+          "name": "summary",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "Summary of the persona's review",
+          "validators": []
+        },
+        {
+          "name": "duration_ms",
+          "type_ref": "float",
+          "required": false,
+          "default": "0.0",
+          "description": "Time taken for this persona's review in milliseconds",
+          "validators": []
+        },
+        {
+          "name": "input_tokens",
+          "type_ref": "int",
+          "required": false,
+          "default": "0",
+          "description": "LLM input tokens consumed",
+          "validators": []
+        },
+        {
+          "name": "output_tokens",
+          "type_ref": "int",
+          "required": false,
+          "default": "0",
+          "description": "LLM output tokens generated",
+          "validators": []
+        },
+        {
+          "name": "estimated_cost_usd",
+          "type_ref": "float",
+          "required": false,
+          "default": "0.0",
+          "description": "Estimated cost in USD for this review",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Complete output from one persona's review including findings and metadata",
+      "owner_component": ""
+    },
+    {
+      "name": "Disagreement",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "finding_a",
+          "type_ref": "Finding",
+          "required": true,
+          "default": "",
+          "description": "First finding in the disagreement",
+          "validators": []
+        },
+        {
+          "name": "finding_b",
+          "type_ref": "Finding",
+          "required": true,
+          "default": "",
+          "description": "Second finding in the disagreement",
+          "validators": []
+        },
+        {
+          "name": "tension",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Description of what the disagreement reveals",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Represents when two personas disagree, which reveals signal about edge cases or ambiguity",
+      "owner_component": ""
+    },
+    {
+      "name": "Review",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "review_id",
+          "type_ref": "str",
+          "required": false,
+          "default": "generated from timestamp and uuid4",
+          "description": "Unique identifier in format YYYYMMDDTHHMMSS-<8-char-hex>",
+          "validators": []
+        },
+        {
+          "name": "target",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "What was reviewed (file path, description, etc.)",
+          "validators": []
+        },
+        {
+          "name": "target_type",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "Type of target: 'file', 'directory', 'pr', 'stdin', 'text'",
+          "validators": []
+        },
+        {
+          "name": "started_at",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "ISO timestamp when review started",
+          "validators": []
+        },
+        {
+          "name": "completed_at",
+          "type_ref": "str | None",
+          "required": false,
+          "default": "None",
+          "description": "ISO timestamp when review completed",
+          "validators": []
+        },
+        {
+          "name": "persona_reports",
+          "type_ref": "list[PersonaReport]",
+          "required": false,
+          "default": "[]",
+          "description": "All persona reports from this review",
+          "validators": []
+        },
+        {
+          "name": "disagreements",
+          "type_ref": "list[Disagreement]",
+          "required": false,
+          "default": "[]",
+          "description": "Identified disagreements between personas",
+          "validators": []
+        },
+        {
+          "name": "total_findings",
+          "type_ref": "int",
+          "required": false,
+          "default": "0",
+          "description": "Total count of all findings across all personas",
+          "validators": []
+        },
+        {
+          "name": "total_cost_usd",
+          "type_ref": "float",
+          "required": false,
+          "default": "0.0",
+          "description": "Total estimated cost in USD for the entire review",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Complete Advocate review with all persona reports, findings, and metadata",
+      "owner_component": ""
+    }
+  ],
+  "functions": [
+    {
+      "name": "all_findings",
+      "description": "Flattens all findings from all persona reports into a single list. Method on Review class.",
+      "inputs": [
+        {
+          "name": "self",
+          "type_ref": "Review",
+          "required": true,
+          "default": "",
+          "description": "The Review instance containing persona_reports",
+          "validators": []
+        }
+      ],
+      "output_type": "list[Finding]",
+      "error_cases": [],
+      "preconditions": [
+        "self.persona_reports is a valid list (may be empty)"
+      ],
+      "postconditions": [
+        "Returns a list containing all findings from all persona reports in order",
+        "Empty list if no persona reports or no findings in any report",
+        "Order preserves persona_reports iteration order and findings order within each report"
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "datetime",
+    "enum",
+    "uuid",
+    "pydantic"
+  ],
+  "dependency_contracts": {},
+  "invariants": [
+    "Persona enum has exactly 6 variants representing review personas",
+    "Severity enum has exactly 5 levels from critical to info",
+    "Dimension enum has exactly 14 review categories",
+    "Review.review_id format is always YYYYMMDDTHHMMSS-{8 hex chars}",
+    "All Pydantic models validate their fields on instantiation",
+    "Finding.evidence and Finding.recommendation default to empty string",
+    "PersonaReport numeric fields (duration_ms, tokens, cost) default to 0 or 0.0",
+    "Review.completed_at can be None to represent incomplete reviews"
+  ],
+  "requires": [
+    "pydantic.BaseModel",
+    "pydantic.Field",
+    "datetime.datetime",
+    "datetime.timezone",
+    "uuid.uuid4",
+    "enum.Enum"
+  ],
+  "processing_register": "",
+  "data_access": {
+    "reads": [],
+    "writes": [],
+    "rationale": "Pure data models with no external I/O. The all_findings method only reads in-memory data structures.",
+    "side_effects": []
+  },
+  "authority": {
+    "domains": [
+      "advocate_review_data"
+    ],
+    "rationale": "Owns the canonical data model structure for Advocate review artifacts, findings, and persona reports"
+  }
+}

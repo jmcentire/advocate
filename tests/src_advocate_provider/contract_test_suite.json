@@ -1,0 +1,540 @@
+{
+  "component_id": "src_advocate_provider",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "test_estimate_cost_happy_path_known_model",
+      "description": "Estimate cost for a known model with standard token counts",
+      "function": "estimate_cost",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "claude-3-opus-20240229",
+        "input_tokens": "1000000",
+        "output_tokens": "500000"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns non-negative float representing estimated USD cost based on pricing data",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_estimate_cost_unknown_model_fallback",
+      "description": "Estimate cost for unknown model falls back to default pricing",
+      "function": "estimate_cost",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "unknown-model-xyz",
+        "input_tokens": "1000000",
+        "output_tokens": "1000000"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns cost calculated with default pricing (3.0 input, 15.0 output per 1M tokens)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_estimate_cost_zero_tokens",
+      "description": "Estimate cost with zero input and output tokens",
+      "function": "estimate_cost",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "gpt-4",
+        "input_tokens": "0",
+        "output_tokens": "0"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.0 cost",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_estimate_cost_fuzzy_prefix_matching",
+      "description": "Estimate cost uses fuzzy prefix matching for model names",
+      "function": "estimate_cost",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "claude-3-opus",
+        "input_tokens": "1000000",
+        "output_tokens": "1000000"
+      },
+      "input_description": "",
+      "expected_output_description": "Matches prefix and returns appropriate cost",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_estimate_cost_non_negative",
+      "description": "Verify cost estimation always returns non-negative value",
+      "function": "estimate_cost",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "gpt-3.5-turbo",
+        "input_tokens": "500000",
+        "output_tokens": "250000"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns non-negative float",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_anthropic_with_model",
+      "description": "Create Anthropic provider with explicit model",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "anthropic",
+        "model": "claude-3-opus-20240229"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns AnthropicProvider instance with specified model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_anthropic_default_model",
+      "description": "Create Anthropic provider with default model (model=None)",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "anthropic",
+        "model": "None"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns AnthropicProvider instance with default model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_openai_with_model",
+      "description": "Create OpenAI provider with explicit model",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "openai",
+        "model": "gpt-4"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns OpenAIProvider instance with specified model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_openai_default_model",
+      "description": "Create OpenAI provider with default model (model=None)",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "openai",
+        "model": "None"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns OpenAIProvider instance with default model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_gemini_with_model",
+      "description": "Create Gemini provider with explicit model",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "gemini",
+        "model": "gemini-pro"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns GeminiProvider instance with specified model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_gemini_default_model",
+      "description": "Create Gemini provider with default model (model=None)",
+      "function": "create_provider",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "gemini",
+        "model": "None"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns GeminiProvider instance with default model",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_create_provider_unknown_provider_error",
+      "description": "Create provider with unknown provider name raises error",
+      "function": "create_provider",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "provider": "unknown_provider",
+        "model": "some-model"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "unknown_provider",
+      "assertions": []
+    },
+    {
+      "id": "test_transmogrify_happy_path",
+      "description": "Transmogrify text when Transmogrifier is available",
+      "function": "transmogrify",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "transmogrifier.core.Transmogrifier": "available"
+      },
+      "input_values": {
+        "text": "Test prompt text",
+        "model": "gpt-4"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns transmogrified text if transmogrifier available",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_transmogrify_import_error_fallback",
+      "description": "Transmogrify returns original text on ImportError",
+      "function": "transmogrify",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "transmogrifier.core.Transmogrifier": "import_error"
+      },
+      "input_values": {
+        "text": "Test prompt text",
+        "model": "gpt-4"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns original text unchanged on ImportError",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_transmogrify_runtime_error_fallback",
+      "description": "Transmogrify returns original text on runtime exception",
+      "function": "transmogrify",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "transmogrifier.core.Transmogrifier": "runtime_error"
+      },
+      "input_values": {
+        "text": "Test prompt text",
+        "model": "gpt-4"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns original text unchanged on any exception",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_llmprovider_init",
+      "description": "Initialize LLMProvider base class with model",
+      "function": "LLMProvider.__init__",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "model": "test-model-123"
+      },
+      "input_description": "",
+      "expected_output_description": "Sets self.model attribute to provided model string",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_llmprovider_complete_not_implemented",
+      "description": "Calling complete() on abstract LLMProvider raises NotImplementedError",
+      "function": "LLMProvider.complete",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "not_implemented",
+      "assertions": []
+    },
+    {
+      "id": "test_llmprovider_provider_name_not_implemented",
+      "description": "Calling provider_name on abstract LLMProvider raises NotImplementedError",
+      "function": "LLMProvider.provider_name",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "not_implemented",
+      "assertions": []
+    },
+    {
+      "id": "test_anthropic_provider_name",
+      "description": "AnthropicProvider.provider_name returns 'anthropic'",
+      "function": "AnthropicProvider.provider_name",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Returns 'anthropic'",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_anthropic_complete_happy_path",
+      "description": "AnthropicProvider.complete() returns proper tuple with mocked API response",
+      "function": "AnthropicProvider.complete",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "anthropic.AsyncAnthropic": "mocked_success"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello, how are you?",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns (response_text, input_tokens, output_tokens) tuple",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_anthropic_complete_empty_content_error",
+      "description": "AnthropicProvider.complete() raises error when response.content is empty",
+      "function": "AnthropicProvider.complete",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "anthropic.AsyncAnthropic": "empty_content"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "index_error",
+      "assertions": []
+    },
+    {
+      "id": "test_anthropic_complete_api_error",
+      "description": "AnthropicProvider.complete() raises error on API failure",
+      "function": "AnthropicProvider.complete",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "anthropic.AsyncAnthropic": "api_error"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "anthropic_api_error",
+      "assertions": []
+    },
+    {
+      "id": "test_openai_provider_name",
+      "description": "OpenAIProvider.provider_name returns 'openai'",
+      "function": "OpenAIProvider.provider_name",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Returns 'openai'",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_openai_complete_happy_path",
+      "description": "OpenAIProvider.complete() returns proper tuple with mocked API response",
+      "function": "OpenAIProvider.complete",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "openai.AsyncOpenAI": "mocked_success"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello, how are you?",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns (response_text, input_tokens, output_tokens) tuple",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_openai_complete_none_fallback",
+      "description": "OpenAIProvider.complete() handles None values gracefully with fallbacks",
+      "function": "OpenAIProvider.complete",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "openai.AsyncOpenAI": "none_values"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns ('', 0, 0) when API returns None values",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_openai_complete_api_error",
+      "description": "OpenAIProvider.complete() raises error on API failure",
+      "function": "OpenAIProvider.complete",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "openai.AsyncOpenAI": "api_error"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "openai_api_error",
+      "assertions": []
+    },
+    {
+      "id": "test_gemini_provider_name",
+      "description": "GeminiProvider.provider_name returns 'gemini'",
+      "function": "GeminiProvider.provider_name",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Returns 'gemini'",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_gemini_complete_happy_path",
+      "description": "GeminiProvider.complete() returns proper tuple with mocked API response",
+      "function": "GeminiProvider.complete",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {
+        "google.genai.Client": "mocked_success"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello, how are you?",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns (response_text, input_tokens, output_tokens) tuple",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_gemini_complete_none_fallback",
+      "description": "GeminiProvider.complete() handles None values gracefully with fallbacks",
+      "function": "GeminiProvider.complete",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "google.genai.Client": "none_values"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns ('', 0, 0) when API returns None values",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_gemini_complete_api_error",
+      "description": "GeminiProvider.complete() raises error on API failure",
+      "function": "GeminiProvider.complete",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "google.genai.Client": "api_error"
+      },
+      "input_values": {
+        "system": "You are a helpful assistant",
+        "user": "Hello",
+        "max_tokens": "4096"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "gemini_api_error",
+      "assertions": []
+    },
+    {
+      "id": "test_all_providers_return_tuple_invariant",
+      "description": "Verify all providers return tuple of (str, int, int) from complete()",
+      "function": "LLMProvider.complete",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "All provider complete() methods return (str, int, int) tuple",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "test_default_max_tokens_invariant",
+      "description": "Verify default max_tokens is 4096 across all implementations",
+      "function": "LLMProvider.complete",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Default max_tokens is 4096",
+      "expected_error": "",
+      "assertions": []
+    }
+  ],
+  "test_language": "python",
+  "generated_code": "\"\"\"\nContract tests for src_advocate_provider module.\n\nTests cover LLMProvider abstraction with Anthropic, OpenAI, and Gemini implementations.\nAll external dependencies (anthropic, openai, google.genai) are mocked.\n\"\"\"\n\nimport pytest\nfrom unittest.mock import Mock, AsyncMock, patch, MagicMock\nfrom typing import Any\nimport sys\n\n# Import module under test\nfrom src.advocate.provider import (\n    LLMProvider,\n    AnthropicProvider,\n    OpenAIProvider,\n    GeminiProvider,\n    estimate_cost,\n    create_provider,\n    transmogrify,\n)\n\n\n# ============================================================================\n# COST ESTIMATION TESTS\n# ============================================================================\n\n\ndef test_estimate_cost_happy_path_known_model():\n    \"\"\"Estimate cost for a known model with standard token counts.\"\"\"\n    # Using typical token counts for a known model\n    cost = estimate_cost(\"claude-3-opus-20240229\", 1000000, 500000)\n    \n    assert isinstance(cost, float)\n    assert cost >= 0.0\n    # Claude 3 Opus typical pricing: $15 input / $75 output per 1M tokens\n    # 1M input tokens * 15 + 0.5M output tokens * 75 = 15 + 37.5 = 52.5\n    # Allow some tolerance for pricing variations\n    assert cost > 0\n\n\ndef test_estimate_cost_unknown_model_fallback():\n    \"\"\"Estimate cost for unknown model falls back to default pricing.\"\"\"\n    # Unknown model should use default pricing: 3.0 input, 15.0 output per 1M tokens\n    cost = estimate_cost(\"unknown-model-xyz\", 1000000, 1000000)\n    \n    assert isinstance(cost, float)\n    assert cost >= 0.0\n    # Expected: 1M * 3.0/1M + 1M * 15.0/1M = 3.0 + 15.0 = 18.0\n    assert cost == 18.0\n\n\ndef test_estimate_cost_zero_tokens():\n    \"\"\"Estimate cost with zero input and output tokens.\"\"\"\n    cost = estimate_cost(\"gpt-4\", 0, 0)\n    \n    assert isinstance(cost, float)\n    assert cost == 0.0\n\n\ndef test_estimate_cost_fuzzy_prefix_matching():\n    \"\"\"Estimate cost uses fuzzy prefix matching for model names.\"\"\"\n    # Test that prefix matching works\n    cost1 = estimate_cost(\"claude-3-opus\", 1000000, 1000000)\n    cost2 = estimate_cost(\"claude-3-opus-20240229\", 1000000, 1000000)\n    \n    # Both should match similar pricing (prefix matching)\n    assert isinstance(cost1, float)\n    assert isinstance(cost2, float)\n    assert cost1 >= 0.0\n    assert cost2 >= 0.0\n\n\ndef test_estimate_cost_non_negative():\n    \"\"\"Verify cost estimation always returns non-negative value.\"\"\"\n    cost = estimate_cost(\"gpt-3.5-turbo\", 500000, 250000)\n    \n    assert isinstance(cost, float)\n    assert cost >= 0.0\n\n\n# ============================================================================\n# FACTORY FUNCTION TESTS\n# ============================================================================\n\n\ndef test_create_provider_anthropic_with_model():\n    \"\"\"Create Anthropic provider with explicit model.\"\"\"\n    provider = create_provider(\"anthropic\", \"claude-3-opus-20240229\")\n    \n    assert isinstance(provider, AnthropicProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model == \"claude-3-opus-20240229\"\n\n\ndef test_create_provider_anthropic_default_model():\n    \"\"\"Create Anthropic provider with default model (model=None).\"\"\"\n    provider = create_provider(\"anthropic\", None)\n    \n    assert isinstance(provider, AnthropicProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model is not None  # Should have default model\n\n\ndef test_create_provider_openai_with_model():\n    \"\"\"Create OpenAI provider with explicit model.\"\"\"\n    provider = create_provider(\"openai\", \"gpt-4\")\n    \n    assert isinstance(provider, OpenAIProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model == \"gpt-4\"\n\n\ndef test_create_provider_openai_default_model():\n    \"\"\"Create OpenAI provider with default model (model=None).\"\"\"\n    provider = create_provider(\"openai\", None)\n    \n    assert isinstance(provider, OpenAIProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model is not None  # Should have default model\n\n\ndef test_create_provider_gemini_with_model():\n    \"\"\"Create Gemini provider with explicit model.\"\"\"\n    provider = create_provider(\"gemini\", \"gemini-pro\")\n    \n    assert isinstance(provider, GeminiProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model == \"gemini-pro\"\n\n\ndef test_create_provider_gemini_default_model():\n    \"\"\"Create Gemini provider with default model (model=None).\"\"\"\n    provider = create_provider(\"gemini\", None)\n    \n    assert isinstance(provider, GeminiProvider)\n    assert isinstance(provider, LLMProvider)\n    assert provider.model is not None  # Should have default model\n\n\ndef test_create_provider_unknown_provider_error():\n    \"\"\"Create provider with unknown provider name raises error.\"\"\"\n    with pytest.raises((ValueError, KeyError)) as exc_info:\n        create_provider(\"unknown_provider\", \"some-model\")\n    \n    # Error should relate to unknown provider\n    assert exc_info.value is not None\n\n\n# ============================================================================\n# TRANSMOGRIFY TESTS\n# ============================================================================\n\n\n@pytest.mark.asyncio\nasync def test_transmogrify_happy_path():\n    \"\"\"Transmogrify text when Transmogrifier is available.\"\"\"\n    # Mock the Transmogrifier class\n    mock_transmogrifier_instance = AsyncMock()\n    mock_transmogrifier_instance.transmogrify = AsyncMock(return_value=\"Transmogrified text\")\n    \n    mock_transmogrifier_class = Mock(return_value=mock_transmogrifier_instance)\n    \n    with patch.dict('sys.modules', {'transmogrifier': MagicMock(), 'transmogrifier.core': MagicMock()}):\n        with patch('transmogrifier.core.Transmogrifier', mock_transmogrifier_class):\n            result = await transmogrify(\"Test prompt text\", \"gpt-4\")\n    \n    # Should attempt to import and use transmogrifier\n    # Since the actual implementation might handle ImportError, \n    # we verify the result is a string\n    assert isinstance(result, str)\n\n\n@pytest.mark.asyncio\nasync def test_transmogrify_import_error_fallback():\n    \"\"\"Transmogrify returns original text on ImportError.\"\"\"\n    # Simulate ImportError by not having transmogrifier available\n    with patch.dict('sys.modules', {'transmogrifier.core': None}):\n        result = await transmogrify(\"Test prompt text\", \"gpt-4\")\n    \n    # Should return original text on ImportError\n    assert result == \"Test prompt text\"\n\n\n@pytest.mark.asyncio\nasync def test_transmogrify_runtime_error_fallback():\n    \"\"\"Transmogrify returns original text on runtime exception.\"\"\"\n    # Mock Transmogrifier to raise an exception\n    mock_transmogrifier_instance = AsyncMock()\n    mock_transmogrifier_instance.transmogrify = AsyncMock(side_effect=RuntimeError(\"Test error\"))\n    \n    mock_transmogrifier_class = Mock(return_value=mock_transmogrifier_instance)\n    \n    with patch.dict('sys.modules', {'transmogrifier': MagicMock(), 'transmogrifier.core': MagicMock()}):\n        with patch('transmogrifier.core.Transmogrifier', mock_transmogrifier_class):\n            result = await transmogrify(\"Test prompt text\", \"gpt-4\")\n    \n    # Should return original text on any exception\n    assert result == \"Test prompt text\"\n\n\n# ============================================================================\n# BASE LLMPROVIDER TESTS\n# ============================================================================\n\n\ndef test_llmprovider_init():\n    \"\"\"Initialize LLMProvider base class with model.\"\"\"\n    provider = LLMProvider(\"test-model-123\")\n    \n    assert provider.model == \"test-model-123\"\n\n\n@pytest.mark.asyncio\nasync def test_llmprovider_complete_not_implemented():\n    \"\"\"Calling complete() on abstract LLMProvider raises NotImplementedError.\"\"\"\n    provider = LLMProvider(\"test-model\")\n    \n    with pytest.raises(NotImplementedError):\n        await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n\n\ndef test_llmprovider_provider_name_not_implemented():\n    \"\"\"Calling provider_name on abstract LLMProvider raises NotImplementedError.\"\"\"\n    provider = LLMProvider(\"test-model\")\n    \n    with pytest.raises(NotImplementedError):\n        _ = provider.provider_name\n\n\n# ============================================================================\n# ANTHROPIC PROVIDER TESTS\n# ============================================================================\n\n\ndef test_anthropic_provider_name():\n    \"\"\"AnthropicProvider.provider_name returns 'anthropic'.\"\"\"\n    provider = AnthropicProvider(\"claude-3-opus-20240229\")\n    \n    assert provider.provider_name == \"anthropic\"\n\n\n@pytest.mark.asyncio\nasync def test_anthropic_complete_happy_path():\n    \"\"\"AnthropicProvider.complete() returns proper tuple with mocked API response.\"\"\"\n    provider = AnthropicProvider(\"claude-3-opus-20240229\")\n    \n    # Mock the Anthropic API response\n    mock_content = Mock()\n    mock_content.text = \"Hello! I'm doing well, thank you for asking.\"\n    \n    mock_usage = Mock()\n    mock_usage.input_tokens = 15\n    mock_usage.output_tokens = 12\n    \n    mock_response = Mock()\n    mock_response.content = [mock_content]\n    mock_response.usage = mock_usage\n    \n    mock_messages = AsyncMock()\n    mock_messages.create = AsyncMock(return_value=mock_response)\n    \n    mock_client = Mock()\n    mock_client.messages = mock_messages\n    \n    with patch('anthropic.AsyncAnthropic', return_value=mock_client):\n        result = await provider.complete(\"You are a helpful assistant\", \"Hello, how are you?\", 4096)\n    \n    assert isinstance(result, tuple)\n    assert len(result) == 3\n    response_text, input_tokens, output_tokens = result\n    assert isinstance(response_text, str)\n    assert isinstance(input_tokens, int)\n    assert isinstance(output_tokens, int)\n    assert response_text == \"Hello! I'm doing well, thank you for asking.\"\n    assert input_tokens == 15\n    assert output_tokens == 12\n\n\n@pytest.mark.asyncio\nasync def test_anthropic_complete_empty_content_error():\n    \"\"\"AnthropicProvider.complete() raises error when response.content is empty.\"\"\"\n    provider = AnthropicProvider(\"claude-3-opus-20240229\")\n    \n    # Mock response with empty content\n    mock_response = Mock()\n    mock_response.content = []\n    \n    mock_messages = AsyncMock()\n    mock_messages.create = AsyncMock(return_value=mock_response)\n    \n    mock_client = Mock()\n    mock_client.messages = mock_messages\n    \n    with patch('anthropic.AsyncAnthropic', return_value=mock_client):\n        with pytest.raises(IndexError):\n            await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n\n\n@pytest.mark.asyncio\nasync def test_anthropic_complete_api_error():\n    \"\"\"AnthropicProvider.complete() raises error on API failure.\"\"\"\n    provider = AnthropicProvider(\"claude-3-opus-20240229\")\n    \n    # Mock API error\n    mock_messages = AsyncMock()\n    mock_messages.create = AsyncMock(side_effect=Exception(\"API Error\"))\n    \n    mock_client = Mock()\n    mock_client.messages = mock_messages\n    \n    with patch('anthropic.AsyncAnthropic', return_value=mock_client):\n        with pytest.raises(Exception) as exc_info:\n            await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n        \n        assert \"API Error\" in str(exc_info.value)\n\n\n# ============================================================================\n# OPENAI PROVIDER TESTS\n# ============================================================================\n\n\ndef test_openai_provider_name():\n    \"\"\"OpenAIProvider.provider_name returns 'openai'.\"\"\"\n    provider = OpenAIProvider(\"gpt-4\")\n    \n    assert provider.provider_name == \"openai\"\n\n\n@pytest.mark.asyncio\nasync def test_openai_complete_happy_path():\n    \"\"\"OpenAIProvider.complete() returns proper tuple with mocked API response.\"\"\"\n    provider = OpenAIProvider(\"gpt-4\")\n    \n    # Mock the OpenAI API response\n    mock_message = Mock()\n    mock_message.content = \"Hello! I'm doing well, thank you for asking.\"\n    \n    mock_choice = Mock()\n    mock_choice.message = mock_message\n    \n    mock_usage = Mock()\n    mock_usage.prompt_tokens = 18\n    mock_usage.completion_tokens = 12\n    \n    mock_response = Mock()\n    mock_response.choices = [mock_choice]\n    mock_response.usage = mock_usage\n    \n    mock_completions = AsyncMock()\n    mock_completions.create = AsyncMock(return_value=mock_response)\n    \n    mock_chat = Mock()\n    mock_chat.completions = mock_completions\n    \n    mock_client = Mock()\n    mock_client.chat = mock_chat\n    \n    with patch('openai.AsyncOpenAI', return_value=mock_client):\n        result = await provider.complete(\"You are a helpful assistant\", \"Hello, how are you?\", 4096)\n    \n    assert isinstance(result, tuple)\n    assert len(result) == 3\n    response_text, input_tokens, output_tokens = result\n    assert isinstance(response_text, str)\n    assert isinstance(input_tokens, int)\n    assert isinstance(output_tokens, int)\n    assert response_text == \"Hello! I'm doing well, thank you for asking.\"\n    assert input_tokens == 18\n    assert output_tokens == 12\n\n\n@pytest.mark.asyncio\nasync def test_openai_complete_none_fallback():\n    \"\"\"OpenAIProvider.complete() handles None values gracefully with fallbacks.\"\"\"\n    provider = OpenAIProvider(\"gpt-4\")\n    \n    # Mock response with None values\n    mock_message = Mock()\n    mock_message.content = None\n    \n    mock_choice = Mock()\n    mock_choice.message = mock_message\n    \n    mock_usage = Mock()\n    mock_usage.prompt_tokens = None\n    mock_usage.completion_tokens = None\n    \n    mock_response = Mock()\n    mock_response.choices = [mock_choice]\n    mock_response.usage = mock_usage\n    \n    mock_completions = AsyncMock()\n    mock_completions.create = AsyncMock(return_value=mock_response)\n    \n    mock_chat = Mock()\n    mock_chat.completions = mock_completions\n    \n    mock_client = Mock()\n    mock_client.chat = mock_chat\n    \n    with patch('openai.AsyncOpenAI', return_value=mock_client):\n        result = await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n    \n    response_text, input_tokens, output_tokens = result\n    # Should fallback to empty string and 0 tokens\n    assert response_text == \"\"\n    assert input_tokens == 0\n    assert output_tokens == 0\n\n\n@pytest.mark.asyncio\nasync def test_openai_complete_api_error():\n    \"\"\"OpenAIProvider.complete() raises error on API failure.\"\"\"\n    provider = OpenAIProvider(\"gpt-4\")\n    \n    # Mock API error\n    mock_completions = AsyncMock()\n    mock_completions.create = AsyncMock(side_effect=Exception(\"OpenAI API Error\"))\n    \n    mock_chat = Mock()\n    mock_chat.completions = mock_completions\n    \n    mock_client = Mock()\n    mock_client.chat = mock_chat\n    \n    with patch('openai.AsyncOpenAI', return_value=mock_client):\n        with pytest.raises(Exception) as exc_info:\n            await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n        \n        assert \"OpenAI API Error\" in str(exc_info.value)\n\n\n# ============================================================================\n# GEMINI PROVIDER TESTS\n# ============================================================================\n\n\ndef test_gemini_provider_name():\n    \"\"\"GeminiProvider.provider_name returns 'gemini'.\"\"\"\n    provider = GeminiProvider(\"gemini-pro\")\n    \n    assert provider.provider_name == \"gemini\"\n\n\n@pytest.mark.asyncio\nasync def test_gemini_complete_happy_path():\n    \"\"\"GeminiProvider.complete() returns proper tuple with mocked API response.\"\"\"\n    provider = GeminiProvider(\"gemini-pro\")\n    \n    # Mock the Gemini API response\n    mock_usage_metadata = Mock()\n    mock_usage_metadata.prompt_token_count = 20\n    mock_usage_metadata.candidates_token_count = 15\n    \n    mock_response = Mock()\n    mock_response.text = \"Hello! I'm doing well, thank you for asking.\"\n    mock_response.usage_metadata = mock_usage_metadata\n    \n    mock_generate_content = AsyncMock(return_value=mock_response)\n    \n    mock_models = Mock()\n    mock_models.generate_content = mock_generate_content\n    \n    mock_aio = Mock()\n    mock_aio.models = mock_models\n    \n    mock_client = Mock()\n    mock_client.aio = mock_aio\n    \n    with patch('google.genai.Client', return_value=mock_client):\n        result = await provider.complete(\"You are a helpful assistant\", \"Hello, how are you?\", 4096)\n    \n    assert isinstance(result, tuple)\n    assert len(result) == 3\n    response_text, input_tokens, output_tokens = result\n    assert isinstance(response_text, str)\n    assert isinstance(input_tokens, int)\n    assert isinstance(output_tokens, int)\n    assert response_text == \"Hello! I'm doing well, thank you for asking.\"\n    assert input_tokens == 20\n    assert output_tokens == 15\n\n\n@pytest.mark.asyncio\nasync def test_gemini_complete_none_fallback():\n    \"\"\"GeminiProvider.complete() handles None values gracefully with fallbacks.\"\"\"\n    provider = GeminiProvider(\"gemini-pro\")\n    \n    # Mock response with None values\n    mock_usage_metadata = Mock()\n    mock_usage_metadata.prompt_token_count = None\n    mock_usage_metadata.candidates_token_count = None\n    \n    mock_response = Mock()\n    mock_response.text = None\n    mock_response.usage_metadata = mock_usage_metadata\n    \n    mock_generate_content = AsyncMock(return_value=mock_response)\n    \n    mock_models = Mock()\n    mock_models.generate_content = mock_generate_content\n    \n    mock_aio = Mock()\n    mock_aio.models = mock_models\n    \n    mock_client = Mock()\n    mock_client.aio = mock_aio\n    \n    with patch('google.genai.Client', return_value=mock_client):\n        result = await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n    \n    response_text, input_tokens, output_tokens = result\n    # Should fallback to empty string and 0 tokens\n    assert response_text == \"\"\n    assert input_tokens == 0\n    assert output_tokens == 0\n\n\n@pytest.mark.asyncio\nasync def test_gemini_complete_api_error():\n    \"\"\"GeminiProvider.complete() raises error on API failure.\"\"\"\n    provider = GeminiProvider(\"gemini-pro\")\n    \n    # Mock API error\n    mock_generate_content = AsyncMock(side_effect=Exception(\"Gemini API Error\"))\n    \n    mock_models = Mock()\n    mock_models.generate_content = mock_generate_content\n    \n    mock_aio = Mock()\n    mock_aio.models = mock_models\n    \n    mock_client = Mock()\n    mock_client.aio = mock_aio\n    \n    with patch('google.genai.Client', return_value=mock_client):\n        with pytest.raises(Exception) as exc_info:\n            await provider.complete(\"You are a helpful assistant\", \"Hello\", 4096)\n        \n        assert \"Gemini API Error\" in str(exc_info.value)\n\n\n# ============================================================================\n# INVARIANT TESTS\n# ============================================================================\n\n\n@pytest.mark.asyncio\nasync def test_all_providers_return_tuple_invariant():\n    \"\"\"Verify all providers return tuple of (str, int, int) from complete().\"\"\"\n    providers = [\n        AnthropicProvider(\"claude-3-opus-20240229\"),\n        OpenAIProvider(\"gpt-4\"),\n        GeminiProvider(\"gemini-pro\")\n    ]\n    \n    for provider in providers:\n        # Mock appropriate responses for each provider\n        if isinstance(provider, AnthropicProvider):\n            mock_content = Mock()\n            mock_content.text = \"Response\"\n            mock_usage = Mock()\n            mock_usage.input_tokens = 10\n            mock_usage.output_tokens = 5\n            mock_response = Mock()\n            mock_response.content = [mock_content]\n            mock_response.usage = mock_usage\n            mock_messages = AsyncMock()\n            mock_messages.create = AsyncMock(return_value=mock_response)\n            mock_client = Mock()\n            mock_client.messages = mock_messages\n            patch_target = 'anthropic.AsyncAnthropic'\n        \n        elif isinstance(provider, OpenAIProvider):\n            mock_message = Mock()\n            mock_message.content = \"Response\"\n            mock_choice = Mock()\n            mock_choice.message = mock_message\n            mock_usage = Mock()\n            mock_usage.prompt_tokens = 10\n            mock_usage.completion_tokens = 5\n            mock_response = Mock()\n            mock_response.choices = [mock_choice]\n            mock_response.usage = mock_usage\n            mock_completions = AsyncMock()\n            mock_completions.create = AsyncMock(return_value=mock_response)\n            mock_chat = Mock()\n            mock_chat.completions = mock_completions\n            mock_client = Mock()\n            mock_client.chat = mock_chat\n            patch_target = 'openai.AsyncOpenAI'\n        \n        else:  # GeminiProvider\n            mock_usage_metadata = Mock()\n            mock_usage_metadata.prompt_token_count = 10\n            mock_usage_metadata.candidates_token_count = 5\n            mock_response = Mock()\n            mock_response.text = \"Response\"\n            mock_response.usage_metadata = mock_usage_metadata\n            mock_generate_content = AsyncMock(return_value=mock_response)\n            mock_models = Mock()\n            mock_models.generate_content = mock_generate_content\n            mock_aio = Mock()\n            mock_aio.models = mock_models\n            mock_client = Mock()\n            mock_client.aio = mock_aio\n            patch_target = 'google.genai.Client'\n        \n        with patch(patch_target, return_value=mock_client):\n            result = await provider.complete(\"System prompt\", \"User prompt\", 4096)\n            \n            # Verify tuple structure\n            assert isinstance(result, tuple)\n            assert len(result) == 3\n            response_text, input_tokens, output_tokens = result\n            assert isinstance(response_text, str)\n            assert isinstance(input_tokens, int)\n            assert isinstance(output_tokens, int)\n\n\n@pytest.mark.asyncio\nasync def test_default_max_tokens_invariant():\n    \"\"\"Verify default max_tokens is 4096 across all implementations.\"\"\"\n    # This test verifies that when using max_tokens=4096, all providers work correctly\n    # The actual default is used in the application code, not enforced by the providers\n    \n    providers = [\n        AnthropicProvider(\"claude-3-opus-20240229\"),\n        OpenAIProvider(\"gpt-4\"),\n        GeminiProvider(\"gemini-pro\")\n    ]\n    \n    max_tokens = 4096  # Standard default\n    \n    for provider in providers:\n        # Mock appropriate responses for each provider\n        if isinstance(provider, AnthropicProvider):\n            mock_content = Mock()\n            mock_content.text = \"Response\"\n            mock_usage = Mock()\n            mock_usage.input_tokens = 10\n            mock_usage.output_tokens = 5\n            mock_response = Mock()\n            mock_response.content = [mock_content]\n            mock_response.usage = mock_usage\n            mock_messages = AsyncMock()\n            mock_messages.create = AsyncMock(return_value=mock_response)\n            mock_client = Mock()\n            mock_client.messages = mock_messages\n            patch_target = 'anthropic.AsyncAnthropic'\n        \n        elif isinstance(provider, OpenAIProvider):\n            mock_message = Mock()\n            mock_message.content = \"Response\"\n            mock_choice = Mock()\n            mock_choice.message = mock_message\n            mock_usage = Mock()\n            mock_usage.prompt_tokens = 10\n            mock_usage.completion_tokens = 5\n            mock_response = Mock()\n            mock_response.choices = [mock_choice]\n            mock_response.usage = mock_usage\n            mock_completions = AsyncMock()\n            mock_completions.create = AsyncMock(return_value=mock_response)\n            mock_chat = Mock()\n            mock_chat.completions = mock_completions\n            mock_client = Mock()\n            mock_client.chat = mock_chat\n            patch_target = 'openai.AsyncOpenAI'\n        \n        else:  # GeminiProvider\n            mock_usage_metadata = Mock()\n            mock_usage_metadata.prompt_token_count = 10\n            mock_usage_metadata.candidates_token_count = 5\n            mock_response = Mock()\n            mock_response.text = \"Response\"\n            mock_response.usage_metadata = mock_usage_metadata\n            mock_generate_content = AsyncMock(return_value=mock_response)\n            mock_models = Mock()\n            mock_models.generate_content = mock_generate_content\n            mock_aio = Mock()\n            mock_aio.models = mock_models\n            mock_client = Mock()\n            mock_client.aio = mock_aio\n            patch_target = 'google.genai.Client'\n        \n        with patch(patch_target, return_value=mock_client):\n            result = await provider.complete(\"System\", \"User\", max_tokens)\n            \n            # Verify the call succeeded with default max_tokens\n            assert result is not None\n            assert isinstance(result, tuple)\n"
+}

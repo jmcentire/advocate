@@ -1,0 +1,103 @@
+{
+  "root_id": "root",
+  "nodes": {
+    "root": {
+      "component_id": "root",
+      "name": "Project Root",
+      "description": "Adopted codebase at /Users/jmcentire/Code/advocate",
+      "depth": 0,
+      "parent_id": "",
+      "children": [
+        "src"
+      ],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src": {
+      "component_id": "src",
+      "name": "Src",
+      "description": "Package: src",
+      "depth": 1,
+      "parent_id": "root",
+      "children": [
+        "src_advocate"
+      ],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate": {
+      "component_id": "src_advocate",
+      "name": "Advocate",
+      "description": "Package: src/advocate",
+      "depth": 2,
+      "parent_id": "src",
+      "children": [
+        "src_advocate_cli",
+        "src_advocate_engine",
+        "src_advocate_models",
+        "src_advocate_provider",
+        "src_advocate_report"
+      ],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate_cli": {
+      "component_id": "src_advocate_cli",
+      "name": "Cli",
+      "description": "Module src/advocate/cli.py: main, review, personas, _review",
+      "depth": 3,
+      "parent_id": "src_advocate",
+      "children": [],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate_engine": {
+      "component_id": "src_advocate_engine",
+      "name": "Engine",
+      "description": "Module src/advocate/engine.py: _sanitize_content_for_prompt, _parse_findings_json, _run_persona, _detect_disagreements, _word_overlap (+3 more)",
+      "depth": 3,
+      "parent_id": "src_advocate",
+      "children": [],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate_models": {
+      "component_id": "src_advocate_models",
+      "name": "Models",
+      "description": "Module src/advocate/models.py: all_findings",
+      "depth": 3,
+      "parent_id": "src_advocate",
+      "children": [],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate_provider": {
+      "component_id": "src_advocate_provider",
+      "name": "Provider",
+      "description": "Module src/advocate/provider.py: estimate_cost, create_provider, transmogrify, __init__, complete (+7 more)",
+      "depth": 3,
+      "parent_id": "src_advocate",
+      "children": [],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    },
+    "src_advocate_report": {
+      "component_id": "src_advocate_report",
+      "name": "Report",
+      "description": "Module src/advocate/report.py: print_review, write_json, write_html, sev",
+      "depth": 3,
+      "parent_id": "src_advocate",
+      "children": [],
+      "contract": null,
+      "implementation_status": "pending",
+      "test_results": null
+    }
+  }
+}
