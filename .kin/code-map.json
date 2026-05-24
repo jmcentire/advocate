@@ -1,0 +1,1328 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "advocate",
+    "description": "Code map exported from Kindex for advocate.",
+    "languages": [
+      "Python"
+    ],
+    "frameworks": [],
+    "analyzedAt": "2026-05-24T14:43:21",
+    "gitCommitHash": "181276b792924ba1f1fbaeea9964b94cf4427577"
+  },
+  "nodes": [
+    {
+      "id": "code-mod-advocate-5afdf451809e",
+      "type": "file",
+      "name": "contracts/src_advocate_provider/interface.py",
+      "filePath": "contracts/src_advocate_provider/interface.py",
+      "summary": "Language: Python | Path: contracts/src_advocate_provider/interface.py | ~223 lines ## Classes - AnthropicProvider",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 16,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-435eacdb8e17",
+      "type": "file",
+      "name": "src/src_advocate_provider/provider.py",
+      "filePath": "src/src_advocate_provider/provider.py",
+      "summary": "Language: Python | Path: src/src_advocate_provider/provider.py | ~120 lines ## Classes - AnthropicProvider(LLMProvider)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-6d9a8914e789",
+      "type": "file",
+      "name": "contracts/src_advocate_models/interface.py",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "Language: Python | Path: contracts/src_advocate_models/interface.py | ~87 lines ## Classes - Dimension(Enum)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 8,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-d52285f61017",
+      "type": "file",
+      "name": "src/src_advocate_models/models.py",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "Language: Python | Path: src/src_advocate_models/models.py | ~91 lines ## Classes - Dimension(str, Enum)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-783d68ddf8ba",
+      "type": "file",
+      "name": "src/src_advocate_report/report.py",
+      "filePath": "src/src_advocate_report/report.py",
+      "summary": "Language: Python | Path: src/src_advocate_report/report.py | ~181 lines ## Functions - print_review(review: Review, color: bool = True) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-92f3ffb9510c",
+      "type": "file",
+      "name": "contracts/src_advocate_engine/interface.py",
+      "filePath": "contracts/src_advocate_engine/interface.py",
+      "summary": "Language: Python | Path: contracts/src_advocate_engine/interface.py | ~176 lines ## Classes - tuple_content_target_type",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 10,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-6405a86ef09b",
+      "type": "file",
+      "name": "src/src_advocate_engine/engine.py",
+      "filePath": "src/src_advocate_engine/engine.py",
+      "summary": "Language: Python | Path: src/src_advocate_engine/engine.py | ~250 lines ## Functions - load_input(path: str) -> tuple[str,str,str]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 8,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-cafce332d5da",
+      "type": "file",
+      "name": "src/src_advocate_cli/cli.py",
+      "filePath": "src/src_advocate_cli/cli.py",
+      "summary": "Language: Python | Path: src/src_advocate_cli/cli.py | ~117 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-f84a4f13bdcb",
+      "type": "file",
+      "name": "contracts/src_advocate_cli/interface.py",
+      "filePath": "contracts/src_advocate_cli/interface.py",
+      "summary": "Language: Python | Path: contracts/src_advocate_cli/interface.py | ~66 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-a870aa119d95",
+      "type": "file",
+      "name": "contracts/src_advocate_report/interface.py",
+      "filePath": "contracts/src_advocate_report/interface.py",
+      "summary": "Language: Python | Path: contracts/src_advocate_report/interface.py | ~63 lines ## Functions - print_review( review: advocate.models.Review, color: bool = True, ) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-sym-advocate-17593e067f2c",
+      "type": "class",
+      "name": "tuple_content_target_type",
+      "filePath": "contracts/src_advocate_engine/interface.py",
+      "summary": "class tuple_content_target_type (contracts/src_advocate_engine/interface.py:20)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-b976bac95017",
+      "type": "class",
+      "name": "tuple_list_dict_str",
+      "filePath": "contracts/src_advocate_engine/interface.py",
+      "summary": "class tuple_list_dict_str (contracts/src_advocate_engine/interface.py:15)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-b4131e55641f",
+      "type": "class",
+      "name": "Severity",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Severity(str, Enum) (src/src_advocate_models/models.py:21)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-a9d434a85ed7",
+      "type": "class",
+      "name": "Finding",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Finding(BaseModel) (src/src_advocate_models/models.py:46)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-1441e0330c69",
+      "type": "class",
+      "name": "Persona",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Persona(str, Enum) (src/src_advocate_models/models.py:12)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-3f1b3d94980a",
+      "type": "class",
+      "name": "PersonaReport",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class PersonaReport(BaseModel) (src/src_advocate_models/models.py:58)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-6cdc46995b43",
+      "type": "class",
+      "name": "Review",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Review(BaseModel) (src/src_advocate_models/models.py:78) ## Methods - all_findings(self) -> list[Finding]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-f83ec7b8c449",
+      "type": "class",
+      "name": "Review",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Review (contracts/src_advocate_models/interface.py:75)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-f43f9e3d6970",
+      "type": "class",
+      "name": "Severity",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Severity(Enum) (contracts/src_advocate_models/interface.py:24)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-120eb14923c2",
+      "type": "class",
+      "name": "Dimension",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Dimension(str, Enum) (src/src_advocate_models/models.py:29)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-ea96c8a1fec4",
+      "type": "class",
+      "name": "Disagreement",
+      "filePath": "src/src_advocate_models/models.py",
+      "summary": "class Disagreement(BaseModel) (src/src_advocate_models/models.py:70)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-83125ee9d507",
+      "type": "class",
+      "name": "Disagreement",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Disagreement (contracts/src_advocate_models/interface.py:69)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-708e01b9eac6",
+      "type": "class",
+      "name": "Finding",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Finding (contracts/src_advocate_models/interface.py:49)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-3c6b7cf6c0f1",
+      "type": "class",
+      "name": "Persona",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Persona(Enum) (contracts/src_advocate_models/interface.py:15)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-8dcc75c4c95a",
+      "type": "class",
+      "name": "PersonaReport",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class PersonaReport (contracts/src_advocate_models/interface.py:59)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-63aee122fae3",
+      "type": "class",
+      "name": "GeminiProvider",
+      "filePath": "src/src_advocate_provider/provider.py",
+      "summary": "class GeminiProvider(LLMProvider) (src/src_advocate_provider/provider.py:85) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-bfcf4aad42a3",
+      "type": "class",
+      "name": "LLMProvider",
+      "filePath": "src/src_advocate_provider/provider.py",
+      "summary": "class LLMProvider(ABC) (src/src_advocate_provider/provider.py:31) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-8fb5d2bbebd7",
+      "type": "class",
+      "name": "OpenAIProvider",
+      "filePath": "src/src_advocate_provider/provider.py",
+      "summary": "class OpenAIProvider(LLMProvider) (src/src_advocate_provider/provider.py:61) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-645eea60d95c",
+      "type": "class",
+      "name": "Dimension",
+      "filePath": "contracts/src_advocate_models/interface.py",
+      "summary": "class Dimension(Enum) (contracts/src_advocate_models/interface.py:32)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-18ce86ffc3a6",
+      "type": "class",
+      "name": "GeminiProvider",
+      "filePath": "contracts/src_advocate_provider/interface.py",
+      "summary": "class GeminiProvider (contracts/src_advocate_provider/interface.py:24)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-7a342112ce3d",
+      "type": "class",
+      "name": "LLMProvider",
+      "filePath": "contracts/src_advocate_provider/interface.py",
+      "summary": "class LLMProvider (contracts/src_advocate_provider/interface.py:12)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-28fcf27e5779",
+      "type": "class",
+      "name": "OpenAIProvider",
+      "filePath": "contracts/src_advocate_provider/interface.py",
+      "summary": "class OpenAIProvider (contracts/src_advocate_provider/interface.py:20)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-c86530b049eb",
+      "type": "class",
+      "name": "AnthropicProvider",
+      "filePath": "src/src_advocate_provider/provider.py",
+      "summary": "class AnthropicProvider(LLMProvider) (src/src_advocate_provider/provider.py:44) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-d4fd0a4dc892",
+      "type": "class",
+      "name": "AnthropicProvider",
+      "filePath": "contracts/src_advocate_provider/interface.py",
+      "summary": "class AnthropicProvider (contracts/src_advocate_provider/interface.py:16)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-150afa041a4d",
+      "type": "class",
+      "name": "Finding",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Finding(BaseModel) (src/advocate/models.py:46)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-7b98be513ed3",
+      "type": "class",
+      "name": "Severity",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Severity(str, Enum) (src/advocate/models.py:21)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-mod-advocate-2690edd45aec",
+      "type": "file",
+      "name": "src/advocate/provider.py",
+      "filePath": "src/advocate/provider.py",
+      "summary": "Language: Python | Path: src/advocate/provider.py | ~120 lines ## Classes - AnthropicProvider(LLMProvider)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-sym-advocate-faf61aaba0cf",
+      "type": "class",
+      "name": "AnthropicProvider",
+      "filePath": "src/advocate/provider.py",
+      "summary": "class AnthropicProvider(LLMProvider) (src/advocate/provider.py:44) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-29831110a959",
+      "type": "class",
+      "name": "GeminiProvider",
+      "filePath": "src/advocate/provider.py",
+      "summary": "class GeminiProvider(LLMProvider) (src/advocate/provider.py:85) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-f051f4afd0d4",
+      "type": "class",
+      "name": "LLMProvider",
+      "filePath": "src/advocate/provider.py",
+      "summary": "class LLMProvider(ABC) (src/advocate/provider.py:31) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-b3f97ff2856e",
+      "type": "class",
+      "name": "OpenAIProvider",
+      "filePath": "src/advocate/provider.py",
+      "summary": "class OpenAIProvider(LLMProvider) (src/advocate/provider.py:61) ## Methods - complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str,int,int]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-mod-advocate-cfed9d313b1a",
+      "type": "file",
+      "name": "src/advocate/models.py",
+      "filePath": "src/advocate/models.py",
+      "summary": "Language: Python | Path: src/advocate/models.py | ~91 lines ## Classes - Dimension(str, Enum)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-sym-advocate-04b88db19dd1",
+      "type": "class",
+      "name": "Dimension",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Dimension(str, Enum) (src/advocate/models.py:29)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-2785a2856050",
+      "type": "class",
+      "name": "Disagreement",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Disagreement(BaseModel) (src/advocate/models.py:70)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-6f444a89de4a",
+      "type": "class",
+      "name": "Persona",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Persona(str, Enum) (src/advocate/models.py:12)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-b753a52e8628",
+      "type": "class",
+      "name": "PersonaReport",
+      "filePath": "src/advocate/models.py",
+      "summary": "class PersonaReport(BaseModel) (src/advocate/models.py:58)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-advocate-262ab59ae2c5",
+      "type": "class",
+      "name": "Review",
+      "filePath": "src/advocate/models.py",
+      "summary": "class Review(BaseModel) (src/advocate/models.py:78) ## Methods - all_findings(self) -> list[Finding]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-mod-advocate-52f09d12bab1",
+      "type": "file",
+      "name": "src/advocate/personas.py",
+      "filePath": "src/advocate/personas.py",
+      "summary": "Language: Python | Path: src/advocate/personas.py | ~84 lines",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-05e616883a42",
+      "type": "file",
+      "name": "src/advocate/report.py",
+      "filePath": "src/advocate/report.py",
+      "summary": "Language: Python | Path: src/advocate/report.py | ~181 lines ## Functions - print_review(review: Review, color: bool = True) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-f72677281a25",
+      "type": "file",
+      "name": "src/advocate/__init__.py",
+      "filePath": "src/advocate/__init__.py",
+      "summary": "Language: Python | Path: src/advocate/__init__.py | ~3 lines",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-840990427cc0",
+      "type": "file",
+      "name": "src/advocate/engine.py",
+      "filePath": "src/advocate/engine.py",
+      "summary": "Language: Python | Path: src/advocate/engine.py | ~250 lines ## Functions - load_input(path: str) -> tuple[str,str,str]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 8,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-advocate-a8b5a66daec4",
+      "type": "file",
+      "name": "src/advocate/cli.py",
+      "filePath": "src/advocate/cli.py",
+      "summary": "Language: Python | Path: src/advocate/cli.py | ~117 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "code-sym-advocate-17593e067f2c",
+      "target": "code-mod-advocate-92f3ffb9510c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-b976bac95017",
+      "target": "code-mod-advocate-92f3ffb9510c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-b4131e55641f",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-a9d434a85ed7",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-1441e0330c69",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-3f1b3d94980a",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-6cdc46995b43",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-f83ec7b8c449",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-f43f9e3d6970",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-120eb14923c2",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-ea96c8a1fec4",
+      "target": "code-mod-advocate-d52285f61017",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-83125ee9d507",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-708e01b9eac6",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-3c6b7cf6c0f1",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-8dcc75c4c95a",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-63aee122fae3",
+      "target": "code-mod-advocate-435eacdb8e17",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-bfcf4aad42a3",
+      "target": "code-mod-advocate-435eacdb8e17",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-8fb5d2bbebd7",
+      "target": "code-mod-advocate-435eacdb8e17",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-645eea60d95c",
+      "target": "code-mod-advocate-6d9a8914e789",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-18ce86ffc3a6",
+      "target": "code-mod-advocate-5afdf451809e",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-7a342112ce3d",
+      "target": "code-mod-advocate-5afdf451809e",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-28fcf27e5779",
+      "target": "code-mod-advocate-5afdf451809e",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-c86530b049eb",
+      "target": "code-mod-advocate-435eacdb8e17",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-d4fd0a4dc892",
+      "target": "code-mod-advocate-5afdf451809e",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-advocate-150afa041a4d",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-7b98be513ed3",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-faf61aaba0cf",
+      "target": "code-mod-advocate-2690edd45aec",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-29831110a959",
+      "target": "code-mod-advocate-2690edd45aec",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-f051f4afd0d4",
+      "target": "code-mod-advocate-2690edd45aec",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-b3f97ff2856e",
+      "target": "code-mod-advocate-2690edd45aec",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-04b88db19dd1",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-2785a2856050",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-6f444a89de4a",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-b753a52e8628",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-advocate-262ab59ae2c5",
+      "target": "code-mod-advocate-cfed9d313b1a",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-52f09d12bab1",
+      "target": "code-mod-advocate-05e616883a42",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-52f09d12bab1",
+      "target": "code-mod-advocate-f72677281a25",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-52f09d12bab1",
+      "target": "code-mod-advocate-a8b5a66daec4",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-05e616883a42",
+      "target": "code-mod-advocate-52f09d12bab1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-f72677281a25",
+      "target": "code-mod-advocate-52f09d12bab1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-advocate-a8b5a66daec4",
+      "target": "code-mod-advocate-52f09d12bab1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    }
+  ],
+  "layers": [
+    {
+      "id": "core",
+      "name": "Core",
+      "description": "Kindex-inferred core layer.",
+      "nodeIds": [
+        "code-mod-advocate-2690edd45aec",
+        "code-mod-advocate-435eacdb8e17",
+        "code-mod-advocate-52f09d12bab1",
+        "code-mod-advocate-5afdf451809e",
+        "code-mod-advocate-6405a86ef09b",
+        "code-mod-advocate-840990427cc0",
+        "code-mod-advocate-92f3ffb9510c",
+        "code-mod-advocate-a8b5a66daec4",
+        "code-mod-advocate-cafce332d5da",
+        "code-mod-advocate-f72677281a25",
+        "code-mod-advocate-f84a4f13bdcb"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Data",
+      "description": "Kindex-inferred data layer.",
+      "nodeIds": [
+        "code-mod-advocate-05e616883a42",
+        "code-mod-advocate-6d9a8914e789",
+        "code-mod-advocate-783d68ddf8ba",
+        "code-mod-advocate-a870aa119d95",
+        "code-mod-advocate-cfed9d313b1a",
+        "code-mod-advocate-d52285f61017"
+      ]
+    },
+    {
+      "id": "domain",
+      "name": "Domain",
+      "description": "Kindex-inferred domain layer.",
+      "nodeIds": [
+        "code-sym-advocate-04b88db19dd1",
+        "code-sym-advocate-120eb14923c2",
+        "code-sym-advocate-1441e0330c69",
+        "code-sym-advocate-150afa041a4d",
+        "code-sym-advocate-17593e067f2c",
+        "code-sym-advocate-18ce86ffc3a6",
+        "code-sym-advocate-262ab59ae2c5",
+        "code-sym-advocate-2785a2856050",
+        "code-sym-advocate-28fcf27e5779",
+        "code-sym-advocate-29831110a959",
+        "code-sym-advocate-3c6b7cf6c0f1",
+        "code-sym-advocate-3f1b3d94980a",
+        "code-sym-advocate-63aee122fae3",
+        "code-sym-advocate-645eea60d95c",
+        "code-sym-advocate-6cdc46995b43",
+        "code-sym-advocate-6f444a89de4a",
+        "code-sym-advocate-708e01b9eac6",
+        "code-sym-advocate-7a342112ce3d",
+        "code-sym-advocate-7b98be513ed3",
+        "code-sym-advocate-83125ee9d507",
+        "code-sym-advocate-8dcc75c4c95a",
+        "code-sym-advocate-8fb5d2bbebd7",
+        "code-sym-advocate-a9d434a85ed7",
+        "code-sym-advocate-b3f97ff2856e",
+        "code-sym-advocate-b4131e55641f",
+        "code-sym-advocate-b753a52e8628",
+        "code-sym-advocate-b976bac95017",
+        "code-sym-advocate-bfcf4aad42a3",
+        "code-sym-advocate-c86530b049eb",
+        "code-sym-advocate-d4fd0a4dc892",
+        "code-sym-advocate-ea96c8a1fec4",
+        "code-sym-advocate-f051f4afd0d4",
+        "code-sym-advocate-f43f9e3d6970",
+        "code-sym-advocate-f83ec7b8c449",
+        "code-sym-advocate-faf61aaba0cf"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Core",
+      "description": "Review 11 node(s) in the Core layer.",
+      "nodeIds": [
+        "code-mod-advocate-2690edd45aec",
+        "code-mod-advocate-435eacdb8e17",
+        "code-mod-advocate-52f09d12bab1",
+        "code-mod-advocate-5afdf451809e",
+        "code-mod-advocate-6405a86ef09b",
+        "code-mod-advocate-840990427cc0",
+        "code-mod-advocate-92f3ffb9510c",
+        "code-mod-advocate-a8b5a66daec4",
+        "code-mod-advocate-cafce332d5da",
+        "code-mod-advocate-f72677281a25",
+        "code-mod-advocate-f84a4f13bdcb"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Data",
+      "description": "Review 6 node(s) in the Data layer.",
+      "nodeIds": [
+        "code-mod-advocate-05e616883a42",
+        "code-mod-advocate-6d9a8914e789",
+        "code-mod-advocate-783d68ddf8ba",
+        "code-mod-advocate-a870aa119d95",
+        "code-mod-advocate-cfed9d313b1a",
+        "code-mod-advocate-d52285f61017"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Domain",
+      "description": "Review 35 node(s) in the Domain layer.",
+      "nodeIds": [
+        "code-sym-advocate-04b88db19dd1",
+        "code-sym-advocate-120eb14923c2",
+        "code-sym-advocate-1441e0330c69",
+        "code-sym-advocate-150afa041a4d",
+        "code-sym-advocate-17593e067f2c",
+        "code-sym-advocate-18ce86ffc3a6",
+        "code-sym-advocate-262ab59ae2c5",
+        "code-sym-advocate-2785a2856050",
+        "code-sym-advocate-28fcf27e5779",
+        "code-sym-advocate-29831110a959",
+        "code-sym-advocate-3c6b7cf6c0f1",
+        "code-sym-advocate-3f1b3d94980a",
+        "code-sym-advocate-63aee122fae3",
+        "code-sym-advocate-645eea60d95c",
+        "code-sym-advocate-6cdc46995b43",
+        "code-sym-advocate-6f444a89de4a",
+        "code-sym-advocate-708e01b9eac6",
+        "code-sym-advocate-7a342112ce3d",
+        "code-sym-advocate-7b98be513ed3",
+        "code-sym-advocate-83125ee9d507",
+        "code-sym-advocate-8dcc75c4c95a",
+        "code-sym-advocate-8fb5d2bbebd7",
+        "code-sym-advocate-a9d434a85ed7",
+        "code-sym-advocate-b3f97ff2856e",
+        "code-sym-advocate-b4131e55641f"
+      ]
+    }
+  ]
+}
