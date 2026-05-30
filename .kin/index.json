@@ -1,0 +1,584 @@
+{
+  "domains": [
+    "code",
+    "python"
+  ],
+  "node_count": 52,
+  "nodes": [
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-05e616883a42",
+      "title": "src/advocate/report.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-2690edd45aec",
+      "title": "src/advocate/provider.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-435eacdb8e17",
+      "title": "src/src_advocate_provider/provider.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-52f09d12bab1",
+      "title": "src/advocate/personas.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-5afdf451809e",
+      "title": "contracts/src_advocate_provider/interface.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-6405a86ef09b",
+      "title": "src/src_advocate_engine/engine.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-6d9a8914e789",
+      "title": "contracts/src_advocate_models/interface.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-783d68ddf8ba",
+      "title": "src/src_advocate_report/report.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-840990427cc0",
+      "title": "src/advocate/engine.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-92f3ffb9510c",
+      "title": "contracts/src_advocate_engine/interface.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-a870aa119d95",
+      "title": "contracts/src_advocate_report/interface.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-a8b5a66daec4",
+      "title": "src/advocate/cli.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-cafce332d5da",
+      "title": "src/src_advocate_cli/cli.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-cfed9d313b1a",
+      "title": "src/advocate/models.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-d52285f61017",
+      "title": "src/src_advocate_models/models.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-f72677281a25",
+      "title": "src/advocate/__init__.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-advocate-f84a4f13bdcb",
+      "title": "contracts/src_advocate_cli/interface.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-04b88db19dd1",
+      "title": "Dimension",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-120eb14923c2",
+      "title": "Dimension",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-1441e0330c69",
+      "title": "Persona",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-150afa041a4d",
+      "title": "Finding",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-17593e067f2c",
+      "title": "tuple_content_target_type",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-18ce86ffc3a6",
+      "title": "GeminiProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-262ab59ae2c5",
+      "title": "Review",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-2785a2856050",
+      "title": "Disagreement",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-28fcf27e5779",
+      "title": "OpenAIProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-29831110a959",
+      "title": "GeminiProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-3c6b7cf6c0f1",
+      "title": "Persona",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-3f1b3d94980a",
+      "title": "PersonaReport",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-63aee122fae3",
+      "title": "GeminiProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-645eea60d95c",
+      "title": "Dimension",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-6cdc46995b43",
+      "title": "Review",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-6f444a89de4a",
+      "title": "Persona",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-708e01b9eac6",
+      "title": "Finding",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-7a342112ce3d",
+      "title": "LLMProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-7b98be513ed3",
+      "title": "Severity",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-83125ee9d507",
+      "title": "Disagreement",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-8dcc75c4c95a",
+      "title": "PersonaReport",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-8fb5d2bbebd7",
+      "title": "OpenAIProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-a9d434a85ed7",
+      "title": "Finding",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-b3f97ff2856e",
+      "title": "OpenAIProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-b4131e55641f",
+      "title": "Severity",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-b753a52e8628",
+      "title": "PersonaReport",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-b976bac95017",
+      "title": "tuple_list_dict_str",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-bfcf4aad42a3",
+      "title": "LLMProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-c86530b049eb",
+      "title": "AnthropicProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-d4fd0a4dc892",
+      "title": "AnthropicProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-ea96c8a1fec4",
+      "title": "Disagreement",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-f051f4afd0d4",
+      "title": "LLMProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-f43f9e3d6970",
+      "title": "Severity",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-f83ec7b8c449",
+      "title": "Review",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-advocate-faf61aaba0cf",
+      "title": "AnthropicProvider",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:46:48",
+      "weight": 0.5
+    }
+  ],
+  "repo": "advocate",
+  "source_updated_at": "2026-05-30T14:46:48",
+  "version": 1
+}
