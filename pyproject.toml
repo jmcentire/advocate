@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "advocate"
-version = "0.1.0"
+version = "0.1.1"
 description = "Six-persona adversarial review engine — stress-tests code, designs, and decisions"
 requires-python = ">=3.12"
 license = "MIT"
@@ -19,7 +19,7 @@ dependencies = [
 anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.0"]
 gemini = ["google-genai>=1.0"]
-transmogrifier = ["transmogrifier"]
+transmogrifier = ["transmogrifier>=0.3.1"]
 all = ["advocate[anthropic,openai,gemini,transmogrifier]"]
 dev = [
     "pytest>=8.0",
