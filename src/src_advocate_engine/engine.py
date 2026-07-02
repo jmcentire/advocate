@@ -21,6 +21,7 @@ from advocate.models import (
 )
 from advocate.personas import PERSONA_META, SYSTEM_PROMPTS
 from advocate.provider import LLMProvider, estimate_cost, transmogrify
+from pydantic import ValidationError
 
 logger = logging.getLogger("advocate")
 
@@ -35,20 +36,61 @@ def _sanitize_content_for_prompt(content: str) -> str:
     return sanitized
 
 
-def _parse_findings_json(text: str) -> tuple[list[dict], str]:
+def _coerce_findings_array(value: object) -> list[object] | None:
+    if isinstance(value, str):
+        try:
+            return _coerce_findings_array(json.loads(value))
+        except json.JSONDecodeError:
+            return None
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict) and isinstance(value.get("findings"), list):
+        return value["findings"]
+    return None
+
+
+def _string_field(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True)
+    return str(value)
+
+
+def _coerce_enum_value(enum_type, value: object, default):
+    if isinstance(value, enum_type):
+        return value
+    normalized = _string_field(value).strip().lower().replace("-", "_").replace(" ", "_")
+    for member in enum_type:
+        if normalized in {member.name.lower(), str(member.value).lower()}:
+            return member
+    return default
+
+
+def _parse_findings_json_result(text: str) -> tuple[list[object], str, bool]:
     """Robustly extract JSON findings array from LLM response.
 
-    Returns (parsed_items, summary_text). On failure returns ([], full_text).
+    Returns (parsed_items, summary_text, parsed_ok).
     """
     text = text.strip()
 
+    try:
+        items = _coerce_findings_array(json.loads(text))
+        if items is not None:
+            return items, "", True
+    except json.JSONDecodeError:
+        pass
+
     # Try markdown code block first
-    for block in re.findall(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL):
+    for match in re.finditer(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL):
+        block = match.group(1)
         try:
-            items = json.loads(block.strip())
-            if isinstance(items, list):
-                remainder = text.replace(f"```json\n{block}\n```", "").replace(f"```\n{block}\n```", "").strip()
-                return items, remainder
+            items = _coerce_findings_array(json.loads(block.strip()))
+            if items is not None:
+                remainder = (text[:match.start()] + text[match.end():]).strip()
+                return items, remainder, True
         except json.JSONDecodeError:
             continue
 
@@ -64,14 +106,20 @@ def _parse_findings_json(text: str) -> tuple[list[dict], str]:
             depth -= 1
             if depth == 0 and start >= 0:
                 try:
-                    items = json.loads(text[start:i + 1])
-                    if isinstance(items, list):
+                    items = _coerce_findings_array(json.loads(text[start:i + 1]))
+                    if items is not None:
                         summary = text[i + 1:].strip()
-                        return items, summary
+                        return items, summary, True
                 except json.JSONDecodeError:
                     start = -1
 
-    return [], text
+    return [], text, False
+
+
+def _parse_findings_json(text: str) -> tuple[list[object], str]:
+    """Return (parsed_items, summary_text). On failure returns ([], full_text)."""
+    items, summary, _ = _parse_findings_json_result(text)
+    return items, summary
 
 
 async def _run_persona(
@@ -109,37 +157,46 @@ Your success criterion: {meta['success']}"""
         logger.error("Persona %s failed: %s", persona.value, e)
         return PersonaReport(
             persona=persona,
-            summary=f"Error: {e}",
+            summary=f"FAILED: {e}",
+            ok=False,
+            error=str(e),
             duration_ms=(time.monotonic() - start) * 1000,
         )
     duration = (time.monotonic() - start) * 1000
 
     # Parse findings with robust extraction
     findings: list[Finding] = []
-    items, summary = _parse_findings_json(response)
+    items, summary, parsed_ok = _parse_findings_json_result(response)
 
-    sev_map = {s.value: s for s in Severity}
-    dim_map = {d.value: d for d in Dimension}
-
-    parse_failed = False
-    if not items and response.strip():
-        parse_failed = True
+    parse_failed = not parsed_ok
+    if parse_failed:
         logger.warning("Persona %s: JSON parsing failed, raw response preserved in summary", persona.value)
 
     for item in items:
+        if isinstance(item, str):
+            try:
+                item = json.loads(item)
+            except json.JSONDecodeError:
+                logger.warning("Persona %s: skipping string finding that is not JSON", persona.value)
+                continue
         if not isinstance(item, dict):
+            logger.warning("Persona %s: skipping non-object finding: %r", persona.value, item)
             continue
-        sev = sev_map.get(item.get("severity", "medium"), Severity.medium)
-        dim = dim_map.get(item.get("dimension", "concept"), Dimension.concept)
-        findings.append(Finding(
-            persona=persona,
-            severity=sev,
-            dimension=dim,
-            title=item.get("title", "Untitled finding"),
-            detail=item.get("detail", ""),
-            evidence=item.get("evidence", ""),
-            recommendation=item.get("recommendation", ""),
-        ))
+        sev = _coerce_enum_value(Severity, item.get("severity", "medium"), Severity.medium)
+        dim = _coerce_enum_value(Dimension, item.get("dimension", "concept"), Dimension.concept)
+        try:
+            findings.append(Finding(
+                persona=persona,
+                severity=sev,
+                dimension=dim,
+                title=_string_field(item.get("title")) or "Untitled finding",
+                detail=_string_field(item.get("detail")),
+                evidence=_string_field(item.get("evidence")),
+                recommendation=_string_field(item.get("recommendation")),
+            ))
+        except ValidationError as exc:
+            logger.warning("Persona %s: skipping invalid finding: %s", persona.value, exc)
+            continue
 
     if parse_failed:
         summary = f"[PARSE_FAILED] Raw response:\n{response[:500]}"
@@ -148,6 +205,8 @@ Your success criterion: {meta['success']}"""
         persona=persona,
         findings=findings,
         summary=summary,
+        ok=not parse_failed,
+        error="Could not parse findings JSON" if parse_failed else None,
         duration_ms=duration,
         input_tokens=in_tokens,
         output_tokens=out_tokens,
@@ -219,11 +278,12 @@ async def review(
             if isinstance(result, PersonaReport):
                 rev.persona_reports.append(result)
             elif isinstance(result, Exception):
-                # Don't silently drop failures (Adversarial fix)
                 logger.error("Persona %s raised exception: %s", personas[i].value, result)
                 rev.persona_reports.append(PersonaReport(
                     persona=personas[i],
-                    summary=f"Error: {result}",
+                    summary=f"FAILED: {result}",
+                    ok=False,
+                    error=str(result),
                 ))
     else:
         for p in personas:

@@ -112,7 +112,7 @@ advocate personas                  # List all personas
 
 ```
 --provider NAME     anthropic (default), openai, gemini
---model NAME        Override model
+--model NAME        Override model (also ADVOCATE_MODEL)
 -p, --persona NAME  Run specific persona(s), repeatable
 -o, --output PATH   Write JSON output
 --html PATH         Write HTML report
@@ -125,11 +125,16 @@ advocate personas                  # List all personas
 
 | Provider | Default Model | Install |
 |---|---|---|
-| Anthropic | claude-sonnet-4 | `pip install advocate[anthropic]` |
-| OpenAI | gpt-4o | `pip install advocate[openai]` |
+| Anthropic | claude-sonnet-4-6 | `pip install advocate[anthropic]` |
+| OpenAI | gpt-5.4-mini | `pip install advocate[openai]` |
 | Gemini | gemini-2.5-flash | `pip install advocate[gemini]` |
 
 Set the corresponding API key environment variable (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`).
+Model defaults can be overridden with `ADVOCATE_MODEL` or provider-specific
+variables such as `ADVOCATE_ANTHROPIC_MODEL` and `ADVOCATE_OPENAI_MODEL`.
+Advocate performs a small model preflight before spawning persona reviews; if
+the configured model is retired or unavailable, the command exits before
+rendering a false clean review.
 
 ## Supported File Types
 

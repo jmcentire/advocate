@@ -17,8 +17,8 @@ def main() -> None:
 @main.command()
 @click.argument("target", required=False)
 @click.option("--provider", type=click.Choice(["anthropic", "openai", "gemini"]),
-              default="anthropic", help="LLM provider.")
-@click.option("--model", default=None, help="Override model name.")
+              default="anthropic", envvar="ADVOCATE_PROVIDER", help="LLM provider.")
+@click.option("--model", default=None, envvar="ADVOCATE_MODEL", help="Override model name.")
 @click.option("--persona", "-p", multiple=True,
               help="Run specific persona(s) only. Can be repeated.")
 @click.option("--output", "-o", type=click.Path(), default=None,
@@ -46,7 +46,7 @@ def review(target: str | None, provider: str, model: str | None,
     async def _review() -> None:
         from advocate.engine import load_input, review as run_review
         from advocate.models import Persona
-        from advocate.provider import create_provider
+        from advocate.provider import create_provider, model_error_hint
         from advocate.report import print_review, write_json, write_html
 
         # Load input
@@ -87,7 +87,16 @@ def review(target: str | None, provider: str, model: str | None,
         llm = create_provider(provider, model)
         n = len(selected) if selected else 6
         mode = "sequentially" if sequential else "in parallel"
-        click.echo(f"Reviewing {target_name} with {n} personas ({mode}, {provider})...")
+        click.echo(f"Reviewing {target_name} with {n} personas ({mode}, {provider}:{llm.model})...")
+
+        try:
+            await llm.preflight()
+        except Exception as exc:
+            click.echo("", err=True)
+            click.echo("REVIEW NOT STARTED: model preflight failed", err=True)
+            click.echo(f"{provider}:{llm.model} -> {exc}", err=True)
+            click.echo(model_error_hint(provider, llm.model), err=True)
+            sys.exit(2)
 
         # Run review
         result = await run_review(
@@ -109,6 +118,14 @@ def review(target: str | None, provider: str, model: str | None,
         if html:
             write_html(result, Path(html))
             click.echo(f"HTML: {html}")
+
+        failed_reports = result.failed_reports()
+        if failed_reports:
+            click.echo(
+                f"REVIEW INCOMPLETE: {len(failed_reports)}/{len(result.persona_reports)} personas failed",
+                err=True,
+            )
+            sys.exit(2)
 
     asyncio.run(_review())
 

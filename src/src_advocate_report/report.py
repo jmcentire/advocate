@@ -32,9 +32,14 @@ def print_review(review: Review, color: bool = True) -> None:
             return f"{_SEV_COLORS.get(s, '')}{s.value:>8}{_RESET}"
         return f"{s.value:>8}"
 
+    failed_reports = review.failed_reports()
+
     print(f"\n{'='*70}")
     print(f"  ADVOCATE REVIEW: {review.target}")
     print(f"  {review.total_findings} findings | ${review.total_cost_usd:.4f} | {len(review.persona_reports)} personas")
+    if failed_reports:
+        print(f"  REVIEW INCOMPLETE: {len(failed_reports)}/{len(review.persona_reports)} personas failed")
+        print("  Findings are partial; do not treat missing findings as a clean review.")
     print(f"{'='*70}\n")
 
     for report in review.persona_reports:
@@ -43,7 +48,9 @@ def print_review(review: Review, color: bool = True) -> None:
         print(f"\033[1m{header}\033[0m" if color else header)
         print(f"  {'-'*len(header)}")
 
-        if not report.findings:
+        if not report.ok:
+            print(f"  PERSONA FAILED: {report.error or report.summary or 'Unknown provider error'}\n")
+        elif not report.findings:
             print(f"  No findings. (This is a strong positive signal.)\n")
         else:
             for f in sorted(report.findings, key=lambda x: list(Severity).index(x.severity)):
@@ -107,6 +114,7 @@ _HTML = Template("""\
   .sev-low { background: rgba(139,148,158,0.15); color: #8b949e; }
   .sev-info { background: rgba(88,166,255,0.15); color: var(--accent); }
   .persona-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .persona-card.failed { border-color: var(--red); }
   .persona-header { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
   .persona-tagline { color: #8b949e; font-style: italic; margin-bottom: 1rem; }
   .persona-summary { color: #8b949e; margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
@@ -114,6 +122,7 @@ _HTML = Template("""\
   .finding-title { font-weight: 600; }
   .finding-detail { color: #8b949e; font-size: 0.9rem; margin-top: 0.25rem; }
   .finding-rec { color: var(--green); font-size: 0.9rem; margin-top: 0.25rem; }
+  .failure-banner { border: 1px solid var(--red); background: rgba(248,81,73,0.12); color: var(--red); padding: 1rem; border-radius: 6px; margin-bottom: 2rem; }
   .tension { background: var(--card); border: 1px solid var(--yellow); border-radius: 6px; padding: 1rem; margin: 0.5rem 0; }
   footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: #8b949e; font-size: 0.85rem; }
 </style>
@@ -135,11 +144,21 @@ _HTML = Template("""\
   <div class="card"><div class="label">Cost</div><div class="value">${{ "%.4f"|format(review.total_cost_usd) }}</div></div>
 </div>
 
+{% set failed_reports = review.failed_reports() %}
+{% if failed_reports %}
+<div class="failure-banner">
+  <strong>REVIEW INCOMPLETE:</strong> {{ failed_reports|length }}/{{ review.persona_reports|length }} personas failed.
+  Findings are partial; do not treat missing findings as a clean review.
+</div>
+{% endif %}
+
 {% for report in review.persona_reports %}
-<div class="persona-card">
+<div class="persona-card{% if not report.ok %} failed{% endif %}">
   <div class="persona-header">{{ personas[report.persona.value].name }}</div>
   <div class="persona-tagline">{{ personas[report.persona.value].tagline }} — Success: {{ personas[report.persona.value].success }}</div>
-  {% if not report.findings %}
+  {% if not report.ok %}
+  <p style="color: var(--red);">Persona failed: {{ report.error or report.summary or "Unknown provider error" }}</p>
+  {% elif not report.findings %}
   <p style="color: var(--green);">No findings. This is a strong positive signal from this persona.</p>
   {% endif %}
   {% for f in report.findings %}

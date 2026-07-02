@@ -61,6 +61,8 @@ class PersonaReport(BaseModel):
     persona: Persona
     findings: list[Finding] = Field(default_factory=list)
     summary: str = ""
+    ok: bool = True
+    error: str | None = None
     duration_ms: float = 0.0
     input_tokens: int = 0
     output_tokens: int = 0
@@ -90,3 +92,9 @@ class Review(BaseModel):
 
     def all_findings(self) -> list[Finding]:
         return [f for r in self.persona_reports for f in r.findings]
+
+    def failed_reports(self) -> list[PersonaReport]:
+        return [r for r in self.persona_reports if not r.ok]
+
+    def is_complete(self) -> bool:
+        return not self.failed_reports()

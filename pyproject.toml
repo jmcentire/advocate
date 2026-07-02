@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "advocate"
-version = "0.1.1"
+version = "0.1.2"
 description = "Six-persona adversarial review engine — stress-tests code, designs, and decisions"
 requires-python = ">=3.12"
 license = "MIT"
@@ -35,3 +35,4 @@ packages = ["src/advocate"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+python_files = ["test_*.py"]

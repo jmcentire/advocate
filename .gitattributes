@@ -27,3 +27,7 @@ TASKS.md linguist-generated=true
 design.json linguist-generated=true
 analysis.json linguist-generated=true
 checklist.json linguist-generated=true
+
+# Kindex generated artifacts: structured union merge
+.kin/index.json merge=kindex
+.kin/code-map.json merge=kindex
