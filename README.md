@@ -5,7 +5,7 @@ Six-persona adversarial review engine. Feed it code, a design doc, or an archite
 ## Quick Start
 
 ```bash
-pip install advocate[anthropic]
+pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"
 
 # Review a file
 advocate review src/main.py
@@ -125,9 +125,9 @@ advocate personas                  # List all personas
 
 | Provider | Default Model | Install |
 |---|---|---|
-| Anthropic | claude-sonnet-4-6 | `pip install advocate[anthropic]` |
-| OpenAI | gpt-5.4-mini | `pip install advocate[openai]` |
-| Gemini | gemini-2.5-flash | `pip install advocate[gemini]` |
+| Anthropic | claude-sonnet-4-6 | `pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
+| OpenAI | gpt-5.4-mini | `pip install "advocate[openai] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
+| Gemini | gemini-2.5-flash | `pip install "advocate[gemini] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
 
 Set the corresponding API key environment variable (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`).
 Model defaults can be overridden with `ADVOCATE_MODEL` or provider-specific
@@ -135,6 +135,9 @@ variables such as `ADVOCATE_ANTHROPIC_MODEL` and `ADVOCATE_OPENAI_MODEL`.
 Advocate performs a small model preflight before spawning persona reviews; if
 the configured model is retired or unavailable, the command exits before
 rendering a false clean review.
+
+GitHub Releases include the built wheel and sdist. The PyPI package name
+`advocate` is not this project.
 
 ## Supported File Types
 

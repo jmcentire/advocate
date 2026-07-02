@@ -98,11 +98,11 @@
     </p>
     <div class="hero-actions">
       <a href="https://github.com/jmcentire/advocate" class="btn btn-primary">GitHub</a>
-      <a href="https://pypi.org/project/advocate/" class="btn btn-secondary">PyPI</a>
+      <a href="https://github.com/jmcentire/advocate/releases" class="btn btn-secondary">Releases</a>
     </div>
     <div class="install">
       <span class="c"># Review any code in 30 seconds</span><br>
-      pip install advocate[anthropic]<br>
+      pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"<br>
       advocate review ./src/
     </div>
   </section>
@@ -195,7 +195,7 @@ echo "We plan to store tokens in localStorage" | advocate review --stdin
 advocate review src/ --html report.html
 
 <span style="color:var(--muted)"># Different provider</span>
-advocate review src/ --provider openai --model gpt-4o</code></pre>
+advocate review src/ --provider openai --model gpt-5.4-mini</code></pre>
   </section>
 
   <section>
