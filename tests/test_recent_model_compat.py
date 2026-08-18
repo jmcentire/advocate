@@ -10,7 +10,7 @@ from click.testing import CliRunner
 from advocate.cli import main
 from advocate.engine import review as run_review
 from advocate.models import Dimension, Persona, PersonaReport, Review, Severity
-from advocate.provider import LLMProvider, OpenAIProvider, create_provider
+from advocate.provider import AnthropicProvider, LLMProvider, OpenAIProvider, create_provider
 from advocate.report import print_review
 
 
@@ -29,6 +29,32 @@ def test_model_env_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert create_provider("anthropic").model == "anthropic-model"
     assert create_provider("anthropic", "explicit-model").model == "explicit-model"
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_prefers_wander_billing_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
+    monkeypatch.setenv("JMC_ANTHROPIC_API_KEY", "jmc-key")
+    usage = SimpleNamespace(input_tokens=2, output_tokens=1)
+    response = SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="OK")],
+        usage=usage,
+    )
+    mock_client = Mock()
+    mock_client.messages.create = AsyncMock(return_value=response)
+
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client) as client_cls:
+        result = await AnthropicProvider("claude-sonnet-4-6").complete(
+            "system prompt",
+            "user prompt",
+            16,
+        )
+
+    client_cls.assert_called_once_with(api_key="wander-key")
+    assert result == ("OK", 2, 1)
 
 
 @pytest.mark.asyncio
@@ -53,6 +79,33 @@ async def test_openai_provider_uses_responses_api_for_recent_models() -> None:
         instructions="system prompt",
         input="user prompt",
         max_output_tokens=128,
+    )
+
+
+@pytest.mark.asyncio
+async def test_openai_provider_forwards_opt_in_reasoning_effort(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usage = SimpleNamespace(input_tokens=3, output_tokens=1)
+    response = SimpleNamespace(output_text="answer", output=[], usage=usage)
+    mock_client = Mock()
+    mock_client.responses.create = AsyncMock(return_value=response)
+    monkeypatch.setenv("OPENAI_REASONING_EFFORT", "none")
+
+    with patch("openai.AsyncOpenAI", return_value=mock_client):
+        result = await OpenAIProvider("qwen3.5:cloud").complete(
+            "system",
+            "user",
+            123,
+        )
+
+    assert result == ("answer", 3, 1)
+    mock_client.responses.create.assert_awaited_once_with(
+        model="qwen3.5:cloud",
+        instructions="system",
+        input="user",
+        max_output_tokens=123,
+        reasoning={"effort": "none"},
     )
 
 

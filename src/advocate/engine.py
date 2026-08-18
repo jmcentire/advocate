@@ -152,7 +152,7 @@ Your success criterion: {meta['success']}"""
 
     start = time.monotonic()
     try:
-        response, in_tokens, out_tokens = await llm.complete(system, user_prompt)
+        response, in_tokens, out_tokens = await llm.complete(system, user_prompt, max_tokens=16384)
     except Exception as e:
         logger.error("Persona %s failed: %s", persona.value, e)
         return PersonaReport(

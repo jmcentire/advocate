@@ -38,6 +38,21 @@ _RETIRED_MODEL_REPLACEMENTS: dict[str, str] = {
     "claude-3-5-haiku-20241022": "claude-haiku-4-5-20251001",
 }
 
+_ANTHROPIC_API_KEY_ENV_VARS = (
+    "WANDER_ANTHROPIC_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "JMC_ANTHROPIC_API_KEY",
+)
+
+
+def _anthropic_api_key() -> str | None:
+    """Resolve the Anthropic billing key, preferring the Wander account."""
+    for name in _ANTHROPIC_API_KEY_ENV_VARS:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return value
+    return None
+
 
 def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     for key, (inp, out) in _PRICING.items():
@@ -121,7 +136,12 @@ class AnthropicProvider(LLMProvider):
 
     async def complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str, int, int]:
         import anthropic
-        client = anthropic.AsyncAnthropic()
+        api_key = _anthropic_api_key()
+        client = (
+            anthropic.AsyncAnthropic(api_key=api_key)
+            if api_key
+            else anthropic.AsyncAnthropic()
+        )
         response = await client.messages.create(
             model=self.model,
             max_tokens=max_tokens,
@@ -145,14 +165,22 @@ class OpenAIProvider(LLMProvider):
     async def complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str, int, int]:
         from openai import AsyncOpenAI
         client = AsyncOpenAI()
+        reasoning_effort = os.environ.get("OPENAI_REASONING_EFFORT", "").strip()
 
         if hasattr(client, "responses"):
-            response = await client.responses.create(
+            request = dict(
                 model=self.model,
                 instructions=system,
                 input=user,
                 max_output_tokens=max(16, max_tokens),
             )
+            # Keep this provider-specific control opt-in. Ollama reasoning
+            # models may otherwise spend the completion budget without
+            # emitting output text, while generic compatible servers may not
+            # accept the field at all.
+            if reasoning_effort:
+                request["reasoning"] = {"effort": reasoning_effort}
+            response = await client.responses.create(**request)
             usage = getattr(response, "usage", None)
             return (
                 _response_output_text(response),
@@ -160,7 +188,7 @@ class OpenAIProvider(LLMProvider):
                 _token_count(getattr(usage, "output_tokens", None)),
             )
 
-        response = await client.chat.completions.create(
+        request = dict(
             model=self.model,
             messages=[
                 {"role": "system", "content": system},
@@ -168,6 +196,9 @@ class OpenAIProvider(LLMProvider):
             ],
             max_tokens=max_tokens,
         )
+        if reasoning_effort:
+            request["reasoning_effort"] = reasoning_effort
+        response = await client.chat.completions.create(**request)
         usage = response.usage
         return (
             response.choices[0].message.content or "",
