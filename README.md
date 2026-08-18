@@ -5,7 +5,7 @@ Six-persona adversarial review engine. Feed it code, a design doc, or an archite
 ## Quick Start
 
 ```bash
-pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"
+pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.4"
 
 # Review a file
 advocate review src/main.py
@@ -125,9 +125,9 @@ advocate personas                  # List all personas
 
 | Provider | Default Model | Install |
 |---|---|---|
-| Anthropic | claude-sonnet-4-6 | `pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
-| OpenAI | gpt-5.4-mini | `pip install "advocate[openai] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
-| Gemini | gemini-2.5-flash | `pip install "advocate[gemini] @ git+https://github.com/jmcentire/advocate.git@v0.1.3"` |
+| Anthropic | claude-sonnet-4-6 | `pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.4"` |
+| OpenAI | gpt-5.4-mini | `pip install "advocate[openai] @ git+https://github.com/jmcentire/advocate.git@v0.1.4"` |
+| Gemini | gemini-2.5-flash | `pip install "advocate[gemini] @ git+https://github.com/jmcentire/advocate.git@v0.1.4"` |
 
 For Anthropic, `WANDER_ANTHROPIC_API_KEY` is preferred, with
 `ANTHROPIC_API_KEY` and `JMC_ANTHROPIC_API_KEY` as fallbacks. Set
