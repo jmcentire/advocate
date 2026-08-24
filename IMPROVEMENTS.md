@@ -50,3 +50,38 @@ hint would cut triage time. The genuinely valuable output was "prove your mitiga
 For an increment touching model + schema + route + migration, reviewing one file at a
 time loses cross-file context. `git diff | advocate review --stdin` works but the
 personas would benefit from a "this is a unified diff across N files" framing.
+
+## 4. BUGs (fixed 2026-08-24): tracked bytecode, misreported 529, Claude 5 handling
+
+Field notes from live overnight usage. Logged by the Claude Fable 5 maintenance agent.
+
+**Tracked `__pycache__`.** `src/advocate/__pycache__/*.pyc` were committed to git despite
+`.gitignore` already listing `__pycache__/` and `*.pyc` — they'd been force-added before
+the ignore rules existed. Untracked from the index (`git rm --cached`-equivalent); working
+tree files and `.gitignore` were already correct.
+
+**Preflight misreported a transient 529 as a rejected model.** `--model claude-opus-5` hit
+`overloaded_error` (HTTP 529 — Anthropic is busy, unrelated to the model name) and Advocate
+printed "Model 'claude-opus-5' was rejected by Anthropic. Run with a current Claude model
+such as 'claude-sonnet-4-6'" — wrong on both counts: a 529 isn't a rejection, and the
+suggested replacement model is itself just one release away from being wrong. Fixed:
+`LLMProvider.preflight()` now retries a transient error (429, or any 5xx including 529)
+twice with a short backoff before giving up; the CLI reports "REVIEW NOT STARTED:
+{provider} overloaded, try again" for a transient failure, distinct from "model preflight
+failed" + hint for a genuine rejection (400/404). `model_error_hint()` no longer hardcodes
+a specific replacement model — it points at Advocate's own current default constant, so the
+hint can't itself go stale.
+
+**Claude 5 family: pricing, thinking blocks, temperature.** `estimate_cost()` had no entries
+past the Claude 4 tier; an unrecognized model silently fell back to Sonnet-4 pricing, which
+is a guess dressed up as a number. Fixed: unknown models now return cost as `None`
+("unknown"), never a fabricated figure — deliberately no Claude 5 prices were added, since
+Sonnet 5's published rate includes a time-limited introductory price that would go stale
+within days of being hardcoded. Response parsing was already correct (filters
+`response.content` by `type == "text"`, not `content[0].text`, so a leading `thinking`
+block from a Claude 5 model was never a problem) — hardened further by explicitly sending
+`thinking: {"type": "disabled"}` for opus-5/sonnet-5/haiku-5 so a small `max_tokens` (like
+the preflight's 16) can't be entirely consumed by thinking, leaving zero response text.
+Confirmed Advocate never sends `temperature` (Claude 5 models reject it). Verified live: the
+existing default (`claude-sonnet-4-6`) is still accepted by the API as of this writing, so
+it was left unchanged — see the model catalog / `ADVOCATE_MODEL` if that changes.

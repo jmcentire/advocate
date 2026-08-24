@@ -136,7 +136,9 @@ Model defaults can be overridden with `ADVOCATE_MODEL` or provider-specific
 variables such as `ADVOCATE_ANTHROPIC_MODEL` and `ADVOCATE_OPENAI_MODEL`.
 Advocate performs a small model preflight before spawning persona reviews; if
 the configured model is retired or unavailable, the command exits before
-rendering a false clean review.
+rendering a false clean review. A transient error (rate limit, server
+overload) is retried a couple of times with backoff and reported distinctly
+("overloaded, try again") from a genuine model rejection.
 
 GitHub Releases include the built wheel and sdist. The PyPI package name
 `advocate` is not this project.
@@ -150,6 +152,10 @@ Binary files, `__pycache__`, `.git`, and `node_modules` are skipped automaticall
 ## Cost
 
 Six parallel calls to Claude Sonnet costs ~$0.15-0.30 per review depending on input size. Use `--sequential` or `-p` to reduce costs. Token counts and estimated USD are shown in the output.
+
+If a model isn't in Advocate's internal pricing table yet (e.g. one released after this
+version of Advocate), the cost is shown as "unknown" rather than a guessed figure --
+Advocate never substitutes another model's price.
 
 ## Self-Reviewed
 
