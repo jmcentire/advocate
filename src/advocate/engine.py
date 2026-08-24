@@ -292,7 +292,9 @@ async def review(
 
     rev.disagreements = _detect_disagreements(rev.persona_reports)
     rev.total_findings = sum(len(r.findings) for r in rev.persona_reports)
-    rev.total_cost_usd = sum(r.estimated_cost_usd for r in rev.persona_reports)
+    known_costs = [r.estimated_cost_usd for r in rev.persona_reports if r.estimated_cost_usd is not None]
+    rev.total_cost_usd = sum(known_costs)
+    rev.cost_partial = len(known_costs) != len(rev.persona_reports)
     rev.completed_at = datetime.now(timezone.utc).isoformat()
 
     return rev

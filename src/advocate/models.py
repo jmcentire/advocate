@@ -66,7 +66,10 @@ class PersonaReport(BaseModel):
     duration_ms: float = 0.0
     input_tokens: int = 0
     output_tokens: int = 0
-    estimated_cost_usd: float = 0.0
+    estimated_cost_usd: float | None = 0.0
+    """USD cost for this persona's call, or None when the model's pricing
+    is not known (e.g. a model not yet in Advocate's pricing table).
+    None is a distinct, honest state -- never coerced to 0.0."""
 
 
 class Disagreement(BaseModel):
@@ -89,6 +92,12 @@ class Review(BaseModel):
     disagreements: list[Disagreement] = Field(default_factory=list)
     total_findings: int = 0
     total_cost_usd: float = 0.0
+    """Sum of the known per-persona costs only -- see cost_partial."""
+    cost_partial: bool = False
+    """True when at least one persona's cost could not be estimated
+    (its model was not in the pricing table); total_cost_usd then
+    undercounts and callers should say so rather than presenting it as
+    the full review cost."""
 
     def all_findings(self) -> list[Finding]:
         return [f for r in self.persona_reports for f in r.findings]

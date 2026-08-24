@@ -2,11 +2,20 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
+import re
 from abc import ABC, abstractmethod
 
 
 # ---- Approximate pricing (USD per 1M tokens) ----
+#
+# Deliberately does not include the Claude 5 family (claude-opus-5,
+# claude-sonnet-5, ...): Anthropic's Claude 5 pricing includes a
+# time-limited introductory rate on some models, so a hardcoded figure
+# here would either be an invented price or a correct-today, wrong-later
+# one. `estimate_cost` reports `None` (unknown) instead of guessing --
+# see the docstring below.
 
 _PRICING: dict[str, tuple[float, float]] = {
     "claude-opus-4-8": (5.0, 25.0),
@@ -25,6 +34,21 @@ _PRICING: dict[str, tuple[float, float]] = {
     "gemini-2.5-pro": (1.25, 10.0),
     "gemini-2.5-flash": (0.15, 0.60),
 }
+
+# Claude 5-tier models (opus-5, sonnet-5, haiku-5, ...) think by default.
+# Advocate's personas expect a text/JSON-only response, and `max_tokens`
+# caps thinking + text combined -- so a small `max_tokens` (e.g. the
+# preflight's 16) could be entirely consumed by thinking, leaving zero
+# response text. Disable thinking for these models to preserve the
+# text-only contract. (Fable/Mythos are excluded: they reject an explicit
+# `thinking: {"type": "disabled"}` outright, at any effort level.)
+_CLAUDE_5_THINKING_DISABLE_RE = re.compile(r"^claude-(opus|sonnet|haiku)-5(-|$)")
+
+# Status codes worth a short retry: 429 rate-limited, and any 5xx --
+# including Anthropic's 529 overloaded_error. These mean "the API is
+# busy," not "the model was rejected" (400/404 are never retried).
+_TRANSIENT_STATUS_MIN = 500
+_TRANSIENT_STATUS_MAX = 599
 
 _RETIRED_MODEL_REPLACEMENTS: dict[str, str] = {
     "claude-sonnet-4-20250514": "claude-sonnet-4-6",
@@ -54,15 +78,30 @@ def _anthropic_api_key() -> str | None:
     return None
 
 
-def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
+    """Estimate USD cost for a completion, or ``None`` if the model's price
+    is not known.
+
+    Never guesses: an unrecognized/unpriced model (e.g. a newly released
+    one not yet in `_PRICING`) returns `None` rather than substituting
+    another model's rate. Callers must treat `None` as "cost unknown" and
+    display it as such -- silently reporting $0.00 or another model's
+    price would be worse than admitting the gap.
+    """
     for key, (inp, out) in _PRICING.items():
         if model.startswith(key) or key.startswith(model):
             return (input_tokens * inp + output_tokens * out) / 1_000_000
-    return (input_tokens * 3.0 + output_tokens * 15.0) / 1_000_000
+    return None
 
 
 def model_error_hint(provider: str, model: str) -> str:
-    """Return a concise operator hint for unavailable model failures."""
+    """Return a concise operator hint for unavailable model failures.
+
+    Points at Advocate's own current default and the override env vars
+    rather than naming a specific alternate model: a hardcoded suggestion
+    goes stale the moment that model is itself retired, which is exactly
+    the failure this hint exists to avoid repeating.
+    """
     replacement = _RETIRED_MODEL_REPLACEMENTS.get(model)
     env_vars = f"ADVOCATE_{provider.upper()}_MODEL or ADVOCATE_MODEL"
     if replacement:
@@ -70,17 +109,34 @@ def model_error_hint(provider: str, model: str) -> str:
             f"Model '{model}' is retired or unavailable. Try '{replacement}', "
             f"or set {env_vars}."
         )
-    if provider == "anthropic":
+    default_model = _DEFAULTS[provider][1] if provider in _DEFAULTS else None
+    provider_label = provider.title() if provider != "openai" else "OpenAI"
+    if default_model and default_model != model:
         return (
-            f"Model '{model}' was rejected by Anthropic. Run with a current "
-            f"Claude model such as 'claude-sonnet-4-6', or set {env_vars}."
+            f"Model '{model}' was rejected by {provider_label}. Try Advocate's "
+            f"current default for this provider ('{default_model}'), or set "
+            f"{env_vars} to a model your account has access to."
         )
-    if provider == "openai":
-        return (
-            f"Model '{model}' was rejected by OpenAI. Use a Responses API model "
-            f"such as 'gpt-5.4-mini' or 'gpt-5.5', or set {env_vars}."
-        )
-    return f"Model '{model}' was rejected. Set {env_vars} to a current model."
+    return (
+        f"Model '{model}' was rejected by {provider_label}. Set {env_vars} to "
+        f"a model your account currently has access to."
+    )
+
+
+def is_transient_error(exc: BaseException) -> bool:
+    """True for a transient provider error (rate limit / server overload)
+    that a short retry can plausibly recover from; false for a genuine
+    rejection (bad request, invalid/unavailable model, auth failure) that
+    retrying will not fix.
+
+    A 529 `overloaded_error` is the case that mattered in practice: it is
+    Anthropic saying "busy, try again," not "this model does not exist,"
+    and must never be reported to the operator as the latter.
+    """
+    status = getattr(exc, "status_code", None)
+    if not isinstance(status, int):
+        return False
+    return status == 429 or _TRANSIENT_STATUS_MIN <= status <= _TRANSIENT_STATUS_MAX
 
 
 def _token_count(value: object) -> int:
@@ -117,12 +173,29 @@ class LLMProvider(ABC):
         """Returns (response_text, input_tokens, output_tokens)."""
 
     async def preflight(self) -> None:
-        """Fail fast if the configured model is unavailable."""
-        await self.complete(
-            "You are checking whether this model is available. Reply with OK only.",
-            "OK",
-            max_tokens=16,
-        )
+        """Fail fast if the configured model is unavailable.
+
+        A transient error (rate limit, server overload -- e.g. Anthropic's
+        529 `overloaded_error`) is retried with a short backoff rather than
+        immediately reported as a rejected model: the two look identical
+        from a bare exception message, but only one of them means the
+        model name is wrong. A genuine rejection (400/404) is raised on
+        the first attempt.
+        """
+        backoff_seconds = (1.0, 2.0)  # 3 attempts total
+        for attempt in range(len(backoff_seconds) + 1):
+            try:
+                await self.complete(
+                    "You are checking whether this model is available. Reply with OK only.",
+                    "OK",
+                    max_tokens=16,
+                )
+                return
+            except Exception as exc:
+                if attempt < len(backoff_seconds) and is_transient_error(exc):
+                    await asyncio.sleep(backoff_seconds[attempt])
+                    continue
+                raise
 
     @property
     @abstractmethod
@@ -142,12 +215,22 @@ class AnthropicProvider(LLMProvider):
             if api_key
             else anthropic.AsyncAnthropic()
         )
-        response = await client.messages.create(
+        request: dict[str, object] = dict(
             model=self.model,
             max_tokens=max_tokens,
             system=system,
             messages=[{"role": "user", "content": user}],
         )
+        # No `temperature` -- Claude 5-family models reject it outright, and
+        # Advocate never relied on sampling variance to begin with.
+        if _CLAUDE_5_THINKING_DISABLE_RE.match(self.model):
+            request["thinking"] = {"type": "disabled"}
+        response = await client.messages.create(**request)
+        # Only "text"-type blocks are joined. Claude 5-family models think
+        # by default and can return a leading `thinking` block ahead of the
+        # `text` block(s); `content[0].text` would break here (a thinking
+        # block has no `.text`). Filtering by type -- not by index -- reads
+        # correctly whether or not thinking is present.
         text = "".join(
             block.text
             for block in response.content

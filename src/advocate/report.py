@@ -34,9 +34,11 @@ def print_review(review: Review, color: bool = True) -> None:
 
     failed_reports = review.failed_reports()
 
+    cost_note = " (partial -- pricing unknown for one or more models)" if review.cost_partial else ""
+
     print(f"\n{'='*70}")
     print(f"  ADVOCATE REVIEW: {review.target}")
-    print(f"  {review.total_findings} findings | ${review.total_cost_usd:.4f} | {len(review.persona_reports)} personas")
+    print(f"  {review.total_findings} findings | ${review.total_cost_usd:.4f}{cost_note} | {len(review.persona_reports)} personas")
     if failed_reports:
         print(f"  REVIEW INCOMPLETE: {len(failed_reports)}/{len(review.persona_reports)} personas failed")
         print("  Findings are partial; do not treat missing findings as a clean review.")
@@ -64,7 +66,12 @@ def print_review(review: Review, color: bool = True) -> None:
 
         if report.summary:
             print(f"  Summary: {report.summary[:200]}")
-        print(f"  ({report.duration_ms:.0f}ms, ${report.estimated_cost_usd:.4f})\n")
+        cost_display = (
+            f"${report.estimated_cost_usd:.4f}"
+            if report.estimated_cost_usd is not None
+            else "cost unknown (model not in pricing table)"
+        )
+        print(f"  ({report.duration_ms:.0f}ms, {cost_display})\n")
 
     if review.disagreements:
         print(f"\033[1m  DISAGREEMENTS ({len(review.disagreements)})\033[0m" if color else
@@ -141,7 +148,8 @@ _HTML = Template("""\
   <div class="card"><div class="label">Personas</div><div class="value">{{ review.persona_reports|length }}</div></div>
   <div class="card"><div class="label">Disagreements</div>
     <div class="value {{ 'yellow' if review.disagreements else '' }}">{{ review.disagreements|length }}</div></div>
-  <div class="card"><div class="label">Cost</div><div class="value">${{ "%.4f"|format(review.total_cost_usd) }}</div></div>
+  <div class="card"><div class="label">Cost</div><div class="value">${{ "%.4f"|format(review.total_cost_usd) }}</div>
+    {% if review.cost_partial %}<div style="color:#8b949e;font-size:0.75rem;">partial — pricing unknown for one or more models</div>{% endif %}</div>
 </div>
 
 {% set failed_reports = review.failed_reports() %}
@@ -174,7 +182,7 @@ _HTML = Template("""\
   {% if report.summary %}
   <div class="persona-summary">{{ report.summary[:300] }}</div>
   {% endif %}
-  <div style="color:#8b949e;font-size:0.8rem;margin-top:0.5rem;">{{ "%.0f"|format(report.duration_ms) }}ms | ${{ "%.4f"|format(report.estimated_cost_usd) }} | {{ report.input_tokens + report.output_tokens }} tokens</div>
+  <div style="color:#8b949e;font-size:0.8rem;margin-top:0.5rem;">{{ "%.0f"|format(report.duration_ms) }}ms | {% if report.estimated_cost_usd is not none %}${{ "%.4f"|format(report.estimated_cost_usd) }}{% else %}cost unknown{% endif %} | {{ report.input_tokens + report.output_tokens }} tokens</div>
 </div>
 {% endfor %}
 

@@ -46,7 +46,7 @@ def review(target: str | None, provider: str, model: str | None,
     async def _review() -> None:
         from advocate.engine import load_input, review as run_review
         from advocate.models import Persona
-        from advocate.provider import create_provider, model_error_hint
+        from advocate.provider import create_provider, is_transient_error, model_error_hint
         from advocate.report import print_review, write_json, write_html
 
         # Load input
@@ -93,9 +93,18 @@ def review(target: str | None, provider: str, model: str | None,
             await llm.preflight()
         except Exception as exc:
             click.echo("", err=True)
-            click.echo("REVIEW NOT STARTED: model preflight failed", err=True)
-            click.echo(f"{provider}:{llm.model} -> {exc}", err=True)
-            click.echo(model_error_hint(provider, llm.model), err=True)
+            if is_transient_error(exc):
+                # preflight() already retried this a couple of times with
+                # backoff -- a transient error surfacing here means the API
+                # is still busy, not that the model name is wrong. Report
+                # that distinctly so operators don't chase a nonexistent
+                # model-rejection.
+                click.echo(f"REVIEW NOT STARTED: {provider} overloaded, try again", err=True)
+                click.echo(f"{provider}:{llm.model} -> {exc}", err=True)
+            else:
+                click.echo("REVIEW NOT STARTED: model preflight failed", err=True)
+                click.echo(f"{provider}:{llm.model} -> {exc}", err=True)
+                click.echo(model_error_hint(provider, llm.model), err=True)
             sys.exit(2)
 
         # Run review
