@@ -5,6 +5,8 @@ the MEA engineering agent.
 
 Status: the high-priority model/default failure in section 1 is fixed in v0.1.2
 and the public install docs were corrected in v0.1.3.
+The section 4 defects (tracked bytecode, misreported 529, Claude 5 cost/thinking
+handling) are fixed in v0.1.5.
 The triage and diff/stdin notes remain future enhancements.
 
 ## 1. BUG (high): default model 404s, and the failure is silent → FALSE "0 findings"
