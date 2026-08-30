@@ -8,7 +8,7 @@ import pytest
 from click.testing import CliRunner
 
 from advocate.cli import main
-from advocate.engine import review as run_review
+from advocate.engine import _parse_findings_json, review as run_review
 from advocate.models import Dimension, Persona, PersonaReport, Review, Severity
 from advocate.provider import AnthropicProvider, LLMProvider, OpenAIProvider, create_provider
 from advocate.report import print_review
@@ -20,7 +20,7 @@ def test_anthropic_default_uses_current_model(monkeypatch: pytest.MonkeyPatch) -
 
     provider = create_provider("anthropic")
 
-    assert provider.model == "claude-sonnet-4-6"
+    assert provider.model == "claude-opus-5"
 
 
 def test_model_env_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -53,8 +53,53 @@ async def test_anthropic_provider_prefers_wander_billing_key(
             16,
         )
 
-    client_cls.assert_called_once_with(api_key="wander-key")
+    client_cls.assert_called_once_with(
+        base_url="https://api.anthropic.com", api_key="wander-key"
+    )
     assert result == ("OK", 2, 1)
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_ignores_ambient_base_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Regression (2026-08-30): the SDK reads ANTHROPIC_BASE_URL by default,
+    so a coding-agent gateway in the ambient shell hijacked Advocate's
+    requests and 404ed on models the billing key has. Advocate must pin the
+    public API unless ADVOCATE_ANTHROPIC_BASE_URL opts in explicitly."""
+    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://gateway.invalid")
+    monkeypatch.delenv("ADVOCATE_ANTHROPIC_BASE_URL", raising=False)
+    usage = SimpleNamespace(input_tokens=1, output_tokens=1)
+    response = SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="OK")], usage=usage
+    )
+    mock_client = Mock()
+    mock_client.messages.create = AsyncMock(return_value=response)
+
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client) as client_cls:
+        await AnthropicProvider("claude-opus-5").complete("system", "user", 16)
+
+    assert client_cls.call_args.kwargs["base_url"] == "https://api.anthropic.com"
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_honors_explicit_advocate_base_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
+    monkeypatch.setenv("ADVOCATE_ANTHROPIC_BASE_URL", "https://pinned.example")
+    usage = SimpleNamespace(input_tokens=1, output_tokens=1)
+    response = SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="OK")], usage=usage
+    )
+    mock_client = Mock()
+    mock_client.messages.create = AsyncMock(return_value=response)
+
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client) as client_cls:
+        await AnthropicProvider("claude-opus-5").complete("system", "user", 16)
+
+    assert client_cls.call_args.kwargs["base_url"] == "https://pinned.example"
 
 
 @pytest.mark.asyncio
@@ -268,3 +313,43 @@ def test_cli_exits_nonzero_when_review_incomplete(monkeypatch: pytest.MonkeyPatc
 
     assert result.exit_code == 2
     assert "REVIEW INCOMPLETE: 1/1 personas failed" in result.output
+
+
+# ---- findings-JSON parsing regressions (2026-08-30 whole-factory run) ----
+#
+# These live here, not in tests/*/contract_test.py: pytest collects only
+# test_*.py (pyproject python_files), so a regression added to a contract
+# file never runs.
+
+
+def test_parse_findings_json_brackets_inside_strings() -> None:
+    """A depth counter sees brackets inside quoted evidence -- code like
+    d["key"] or list[Finding] -- and cuts the array mid-string. raw_decode
+    is string-aware and must not."""
+    text = (
+        '[{"title": "A", "evidence": "d[\\"key\\"] and list[Finding]"}, '
+        '{"title": "B"}]\n\nOverall the design holds.'
+    )
+    findings, summary = _parse_findings_json(text)
+    assert len(findings) == 2
+    assert findings[0]["title"] == "A"
+    assert findings[1]["title"] == "B"
+    assert "the design holds" in summary
+
+
+def test_parse_findings_json_largest_array_wins() -> None:
+    """A stray empty array in prose must not shadow the findings array."""
+    text = 'No findings so far []. But then: [{"title": "Real"}]'
+    findings, _ = _parse_findings_json(text)
+    assert len(findings) == 1
+    assert findings[0]["title"] == "Real"
+
+
+def test_parse_findings_json_salvages_valid_objects() -> None:
+    """A single malformed finding no longer costs the whole response."""
+    text = '[{"title": "A"}, {"title": broken}, {"title": "C"}]'
+    findings, _ = _parse_findings_json(text)
+    titles = [f.get("title") for f in findings]
+    assert "A" in titles
+    assert "C" in titles
+    assert "broken" not in titles

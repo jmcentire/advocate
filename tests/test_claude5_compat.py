@@ -149,12 +149,19 @@ def test_model_error_hint_distinct_from_overload_language() -> None:
     assert "overloaded" not in hint.lower()
 
 
-# ---- estimate_cost: no invented Claude 5 prices ----
+# ---- estimate_cost: Claude 5 priced at standard rates, no guessing ----
+
+
+def test_estimate_cost_claude5_family_priced_at_standard_rates() -> None:
+    # Standard (post-introductory) rates; Sonnet 5's intro rate lapsed
+    # 2026-08-31. Behavior change from the earlier "report None for
+    # Claude 5" stance, which predated a stable published price.
+    assert estimate_cost("claude-opus-5", 1_000_000, 1_000_000) == 30.0
+    assert estimate_cost("claude-sonnet-5", 1_000_000, 1_000_000) == 18.0
+    assert estimate_cost("claude-fable-5", 1_000_000, 1_000_000) == 60.0
 
 
 def test_estimate_cost_unknown_model_returns_none() -> None:
-    assert estimate_cost("claude-sonnet-5", 1000, 1000) is None
-    assert estimate_cost("claude-opus-5", 1000, 1000) is None
     assert estimate_cost("totally-unrecognized-model", 1000, 1000) is None
 
 
@@ -258,7 +265,7 @@ async def test_review_aggregation_handles_unknown_persona_cost_without_crashing(
         content="def f(): pass",
         target="example.py",
         target_type="file",
-        llm=_UnpricedModelProvider("claude-sonnet-5"),
+        llm=_UnpricedModelProvider("some-unpriced-model"),
         personas=[Persona.red_team],
     )
 

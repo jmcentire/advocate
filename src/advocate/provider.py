@@ -10,17 +10,20 @@ from abc import ABC, abstractmethod
 
 # ---- Approximate pricing (USD per 1M tokens) ----
 #
-# Deliberately does not include the Claude 5 family (claude-opus-5,
-# claude-sonnet-5, ...): Anthropic's Claude 5 pricing includes a
-# time-limited introductory rate on some models, so a hardcoded figure
-# here would either be an invented price or a correct-today, wrong-later
-# one. `estimate_cost` reports `None` (unknown) instead of guessing --
-# see the docstring below.
+# Claude 5 figures are the standard rates: Sonnet 5's time-limited
+# introductory rate lapsed 2026-08-31, so the standard price is the one
+# worth recording. `estimate_cost` still reports `None` (unknown) for any
+# model absent here instead of guessing -- see the docstring below.
 
 _PRICING: dict[str, tuple[float, float]] = {
+    "claude-fable-5": (10.0, 50.0),
+    "claude-opus-5": (5.0, 25.0),
+    "claude-sonnet-5": (3.0, 15.0),
     "claude-opus-4-8": (5.0, 25.0),
+    "claude-opus-4-7": (5.0, 25.0),
+    "claude-opus-4-6": (5.0, 25.0),
     "claude-sonnet-4-6": (3.0, 15.0),
-    "claude-haiku-4-5": (0.80, 4.0),
+    "claude-haiku-4-5": (1.0, 5.0),
     "claude-opus-4": (15.0, 75.0),
     "claude-sonnet-4": (3.0, 15.0),
     "claude-haiku-4": (0.25, 1.25),
@@ -58,8 +61,8 @@ _RETIRED_MODEL_REPLACEMENTS: dict[str, str] = {
     "claude-3-7-sonnet-20250219": "claude-sonnet-4-6",
     "claude-3-5-sonnet-20241022": "claude-sonnet-4-6",
     "claude-3-5-sonnet-20240620": "claude-sonnet-4-6",
-    "claude-3-haiku-20240307": "claude-haiku-4-5-20251001",
-    "claude-3-5-haiku-20241022": "claude-haiku-4-5-20251001",
+    "claude-3-haiku-20240307": "claude-haiku-4-5",
+    "claude-3-5-haiku-20241022": "claude-haiku-4-5",
 }
 
 _ANTHROPIC_API_KEY_ENV_VARS = (
@@ -76,6 +79,22 @@ def _anthropic_api_key() -> str | None:
         if value:
             return value
     return None
+
+
+_ANTHROPIC_BASE_URL = "https://api.anthropic.com"
+
+
+def _anthropic_base_url() -> str:
+    """Resolve the Anthropic endpoint, ignoring ambient ANTHROPIC_BASE_URL.
+
+    The surrounding shell often points ANTHROPIC_BASE_URL at a gateway
+    (e.g. a coding-agent proxy) fronting a different account than the key
+    `_anthropic_api_key` resolves; the gateway then 404s on models that
+    key does have. The SDK reads that env var by default, so Advocate pins
+    the public API explicitly. ADVOCATE_ANTHROPIC_BASE_URL is the
+    deliberate opt-in for routing elsewhere.
+    """
+    return os.environ.get("ADVOCATE_ANTHROPIC_BASE_URL", "").strip() or _ANTHROPIC_BASE_URL
 
 
 def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
@@ -210,11 +229,10 @@ class AnthropicProvider(LLMProvider):
     async def complete(self, system: str, user: str, max_tokens: int = 4096) -> tuple[str, int, int]:
         import anthropic
         api_key = _anthropic_api_key()
-        client = (
-            anthropic.AsyncAnthropic(api_key=api_key)
-            if api_key
-            else anthropic.AsyncAnthropic()
-        )
+        client_kwargs: dict[str, object] = {"base_url": _anthropic_base_url()}
+        if api_key:
+            client_kwargs["api_key"] = api_key
+        client = anthropic.AsyncAnthropic(**client_kwargs)
         request: dict[str, object] = dict(
             model=self.model,
             max_tokens=max_tokens,
@@ -312,7 +330,7 @@ class GeminiProvider(LLMProvider):
 
 
 _DEFAULTS: dict[str, tuple[type[LLMProvider], str]] = {
-    "anthropic": (AnthropicProvider, "claude-sonnet-4-6"),
+    "anthropic": (AnthropicProvider, "claude-opus-5"),
     "openai": (OpenAIProvider, "gpt-5.4-mini"),
     "gemini": (GeminiProvider, "gemini-2.5-flash"),
 }
