@@ -1,4 +1,4 @@
-"""Review engine -- runs all six personas against input, detects disagreements."""
+"""Review engine -- runs all personas against input, detects disagreements."""
 
 from __future__ import annotations
 
@@ -94,24 +94,47 @@ def _parse_findings_json_result(text: str) -> tuple[list[object], str, bool]:
         except json.JSONDecodeError:
             continue
 
-    # Try finding [ ... ] with bracket matching
-    depth = 0
-    start = -1
-    for i, ch in enumerate(text):
-        if ch == '[':
-            if depth == 0:
-                start = i
-            depth += 1
-        elif ch == ']':
-            depth -= 1
-            if depth == 0 and start >= 0:
-                try:
-                    items = _coerce_findings_array(json.loads(text[start:i + 1]))
-                    if items is not None:
-                        summary = text[i + 1:].strip()
-                        return items, summary, True
-                except json.JSONDecodeError:
-                    start = -1
+    # Try to decode a JSON array starting at each '[' in the text. Unlike a
+    # naive bracket counter, raw_decode is string-aware: brackets inside
+    # quoted evidence (code like d["key"] or list[Finding]) no longer break
+    # the scan. The text around the array (e.g. the summary paragraph the
+    # personas are asked to append) becomes the summary. When several arrays
+    # parse, the largest wins -- a stray '[]' in prose must not shadow the
+    # findings array.
+    decoder = json.JSONDecoder()
+    best: tuple[list[object], int, int] | None = None
+    idx = text.find("[")
+    while idx != -1:
+        try:
+            value, end = decoder.raw_decode(text, idx)
+        except json.JSONDecodeError:
+            idx = text.find("[", idx + 1)
+            continue
+        items = _coerce_findings_array(value)
+        if items is not None and (best is None or len(items) > len(best[0])):
+            best = (items, idx, end)
+        idx = text.find("[", end)
+    if best is not None:
+        items, start, end = best
+        remainder = (text[:start] + text[end:]).strip()
+        return items, remainder, True
+
+    # Last resort: salvage individually-valid finding objects so a single
+    # malformed sibling no longer costs the whole response.
+    salvaged: list[object] = []
+    idx = text.find("{")
+    while idx != -1:
+        try:
+            value, end = decoder.raw_decode(text, idx)
+            if isinstance(value, dict):
+                salvaged.append(value)
+                idx = text.find("{", end)
+                continue
+        except json.JSONDecodeError:
+            pass
+        idx = text.find("{", idx + 1)
+    if salvaged:
+        return salvaged, "", True
 
     return [], text, False
 

@@ -16,6 +16,7 @@ class Persona(str, Enum):
     user = "user"
     sme = "sme"
     good_friend = "good_friend"
+    helland = "helland"
 
 
 class Severity(str, Enum):
@@ -39,6 +40,8 @@ class Dimension(str, Enum):
     blast_radius = "blast_radius"
     financial_risk = "financial_risk"
     three_am_test = "three_am_test"
+    data_ownership = "data_ownership"
+    reconciliation = "reconciliation"
     design = "design"
     concept = "concept"
 

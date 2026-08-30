@@ -85,7 +85,7 @@ def review(target: str | None, provider: str, model: str | None,
 
         # Create provider
         llm = create_provider(provider, model)
-        n = len(selected) if selected else 6
+        n = len(selected) if selected else len(list(Persona))
         mode = "sequentially" if sequential else "in parallel"
         click.echo(f"Reviewing {target_name} with {n} personas ({mode}, {provider}:{llm.model})...")
 
