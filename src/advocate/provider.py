@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 
 _PRICING: dict[str, tuple[float, float]] = {
     "claude-fable-5": (10.0, 50.0),
+    "claude-opus-5-5": (4.0, 20.0),
     "claude-opus-5": (5.0, 25.0),
     "claude-sonnet-5": (3.0, 15.0),
     "claude-opus-4-8": (5.0, 25.0),
@@ -46,6 +47,16 @@ _PRICING: dict[str, tuple[float, float]] = {
 # text-only contract. (Fable/Mythos are excluded: they reject an explicit
 # `thinking: {"type": "disabled"}` outright, at any effort level.)
 _CLAUDE_5_THINKING_DISABLE_RE = re.compile(r"^claude-(opus|sonnet|haiku)-5(-|$)")
+
+# Claude Opus 5.5 thinks on every request. It returns a 400 for
+# `thinking: {"type": "disabled"}` (and for a `budget_tokens` form) at every
+# effort level, so the `thinking` field is omitted and `output_config.effort`
+# is the only control. Thinking still counts toward `max_tokens`, so effort is
+# kept at `medium` for review calls and `low` for tiny calls like preflight.
+# Checked before the disable pattern, which would otherwise match
+# "claude-opus-5-5".
+_CLAUDE_THINKING_ALWAYS_ON_RE = re.compile(r"^claude-opus-5-5(-|$)")
+_SMALL_REQUEST_MAX_TOKENS = 1024
 
 # Status codes worth a short retry: 429 rate-limited, and any 5xx --
 # including Anthropic's 529 overloaded_error. These mean "the API is
@@ -107,10 +118,15 @@ def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float | 
     display it as such -- silently reporting $0.00 or another model's
     price would be worse than admitting the gap.
     """
-    for key, (inp, out) in _PRICING.items():
-        if model.startswith(key) or key.startswith(model):
-            return (input_tokens * inp + output_tokens * out) / 1_000_000
-    return None
+    # The longest key the model id starts with wins, so "claude-opus-5-5"
+    # gets its own rate and not the rate of its prefix "claude-opus-5".
+    # A key that starts with the model id (a short alias) is the fallback.
+    forward = [k for k in _PRICING if model.startswith(k)]
+    matches = forward or [k for k in _PRICING if k.startswith(model)]
+    if not matches:
+        return None
+    inp, out = _PRICING[max(matches, key=len) if forward else matches[0]]
+    return (input_tokens * inp + output_tokens * out) / 1_000_000
 
 
 def model_error_hint(provider: str, model: str) -> str:
@@ -241,7 +257,10 @@ class AnthropicProvider(LLMProvider):
         )
         # No `temperature` -- Claude 5-family models reject it outright, and
         # Advocate never relied on sampling variance to begin with.
-        if _CLAUDE_5_THINKING_DISABLE_RE.match(self.model):
+        if _CLAUDE_THINKING_ALWAYS_ON_RE.match(self.model):
+            effort = "low" if max_tokens < _SMALL_REQUEST_MAX_TOKENS else "medium"
+            request["output_config"] = {"effort": effort}
+        elif _CLAUDE_5_THINKING_DISABLE_RE.match(self.model):
             request["thinking"] = {"type": "disabled"}
         response = await client.messages.create(**request)
         # Only "text"-type blocks are joined. Claude 5-family models think
@@ -255,6 +274,21 @@ class AnthropicProvider(LLMProvider):
             if getattr(block, "type", "text") == "text" and getattr(block, "text", None)
         )
         usage = response.usage
+        if (
+            not text
+            and max_tokens >= _SMALL_REQUEST_MAX_TOKENS
+            and getattr(response, "stop_reason", None) == "max_tokens"
+        ):
+            # Thinking can spend the whole budget before any text is written.
+            # Fail loudly so the persona is reported as failed with the cause,
+            # not as an unparseable empty response. Small requests (preflight)
+            # are exempt: they only prove the model answers, and a reply with
+            # no text is still an answer.
+            raise RuntimeError(
+                f"{self.model} used all {max_tokens} output tokens without "
+                "writing a response (stop_reason=max_tokens); thinking likely "
+                "consumed the budget"
+            )
         return text, _token_count(usage.input_tokens), _token_count(usage.output_tokens)
 
 

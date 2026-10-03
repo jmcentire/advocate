@@ -343,3 +343,74 @@ def test_cli_reports_genuine_rejection_with_hint_not_overload_language() -> None
     assert result.exit_code == 2
     assert "REVIEW NOT STARTED: model preflight failed" in result.output
     assert "overloaded" not in result.output.lower()
+
+
+# ---- Claude Opus 5.5: thinking always on, effort is the control ----
+
+
+def _ok_client(stop_reason: str = "end_turn", text: str = "OK") -> Mock:
+    usage = SimpleNamespace(input_tokens=1, output_tokens=1)
+    content = [SimpleNamespace(type="text", text=text)] if text else []
+    response = SimpleNamespace(content=content, usage=usage, stop_reason=stop_reason)
+    mock_client = Mock()
+    mock_client.messages.create = AsyncMock(return_value=response)
+    return mock_client
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_never_disables_thinking_for_opus_5_5() -> None:
+    """Opus 5.5 returns a 400 for thinking:disabled at every effort level.
+    The old pattern matched "claude-opus-5-5" and sent it."""
+    mock_client = _ok_client()
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+        await AnthropicProvider("claude-opus-5-5").complete("system", "user", 16384)
+    kwargs = mock_client.messages.create.call_args.kwargs
+    assert "thinking" not in kwargs
+    assert kwargs.get("output_config") == {"effort": "medium"}
+    assert "temperature" not in kwargs
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_uses_low_effort_for_opus_5_5_small_requests() -> None:
+    mock_client = _ok_client()
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+        await AnthropicProvider("claude-opus-5-5").complete("system", "user", 16)
+    kwargs = mock_client.messages.create.call_args.kwargs
+    assert "thinking" not in kwargs
+    assert kwargs.get("output_config") == {"effort": "low"}
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_still_disables_thinking_for_opus_5() -> None:
+    mock_client = _ok_client()
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+        await AnthropicProvider("claude-opus-5").complete("system", "user", 16384)
+    kwargs = mock_client.messages.create.call_args.kwargs
+    assert kwargs.get("thinking") == {"type": "disabled"}
+    assert "output_config" not in kwargs
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_raises_when_budget_exhausted_without_text() -> None:
+    """Thinking can consume all of max_tokens. That must surface as a clear
+    persona failure, not as an empty response the JSON parser rejects."""
+    mock_client = _ok_client(stop_reason="max_tokens", text="")
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+        with pytest.raises(RuntimeError, match="stop_reason=max_tokens"):
+            await AnthropicProvider("claude-opus-5-5").complete("system", "user", 16384)
+
+
+@pytest.mark.asyncio
+async def test_anthropic_provider_small_request_tolerates_empty_text() -> None:
+    """Preflight sends max_tokens=16 and ignores the text. An empty reply
+    that hit max_tokens there must not read as a rejected model."""
+    mock_client = _ok_client(stop_reason="max_tokens", text="")
+    with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+        text, _, _ = await AnthropicProvider("claude-opus-5-5").complete("system", "user", 16)
+    assert text == ""
+
+
+def test_estimate_cost_prices_opus_5_5_on_its_own_rate() -> None:
+    """Prefix matching used to price claude-opus-5-5 at Opus 5's rate."""
+    assert estimate_cost("claude-opus-5-5", 1_000_000, 1_000_000) == 24.0
+    assert estimate_cost("claude-opus-5", 1_000_000, 1_000_000) == 30.0
