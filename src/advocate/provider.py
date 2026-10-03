@@ -5,7 +5,9 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+import tomllib
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 
 # ---- Approximate pricing (USD per 1M tokens) ----
@@ -76,16 +78,54 @@ _RETIRED_MODEL_REPLACEMENTS: dict[str, str] = {
     "claude-3-5-haiku-20241022": "claude-haiku-4-5",
 }
 
-_ANTHROPIC_API_KEY_ENV_VARS = (
-    "WANDER_ANTHROPIC_API_KEY",
-    "ANTHROPIC_API_KEY",
-    "JMC_ANTHROPIC_API_KEY",
-)
+# Which environment variables hold the Anthropic key, in preference order.
+# The default is the vendor-standard name. Operators who bill different
+# accounts through differently named variables configure the ordered list
+# locally -- it is machine data, never repo data:
+#   1. ADVOCATE_ANTHROPIC_API_KEY_ENV="FIRST_NAME,SECOND_NAME", or
+#   2. `anthropic_api_key_env = ["FIRST_NAME", "SECOND_NAME"]` in
+#      $XDG_CONFIG_HOME/advocate/config.toml (default ~/.config/...).
+# See config.example.toml.
+_DEFAULT_ANTHROPIC_API_KEY_ENV_VARS: tuple[str, ...] = ("ANTHROPIC_API_KEY",)
+_API_KEY_ENV_OVERRIDE = "ADVOCATE_ANTHROPIC_API_KEY_ENV"
+
+
+def _config_path() -> Path:
+    base = os.environ.get("XDG_CONFIG_HOME", "").strip()
+    root = Path(base) if base else Path.home() / ".config"
+    return root / "advocate" / "config.toml"
+
+
+def _anthropic_api_key_env_vars() -> tuple[str, ...]:
+    """Return the ordered env-var names to try for the Anthropic key."""
+    override = os.environ.get(_API_KEY_ENV_OVERRIDE, "")
+    names = tuple(n.strip() for n in override.split(",") if n.strip())
+    if names:
+        return names
+    path = _config_path()
+    if path.is_file():
+        try:
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            raise RuntimeError(f"advocate: cannot read config {path}: {exc}") from exc
+        configured = data.get("anthropic_api_key_env")
+        if configured is not None:
+            if not (
+                isinstance(configured, list)
+                and all(isinstance(n, str) and n.strip() for n in configured)
+            ):
+                raise RuntimeError(
+                    f"advocate: {path}: anthropic_api_key_env must be a list of "
+                    "environment variable names"
+                )
+            if configured:
+                return tuple(n.strip() for n in configured)
+    return _DEFAULT_ANTHROPIC_API_KEY_ENV_VARS
 
 
 def _anthropic_api_key() -> str | None:
-    """Resolve the Anthropic billing key, preferring the Wander account."""
-    for name in _ANTHROPIC_API_KEY_ENV_VARS:
+    """Resolve the Anthropic key from the first configured env var that is set."""
+    for name in _anthropic_api_key_env_vars():
         value = os.environ.get(name, "").strip()
         if value:
             return value

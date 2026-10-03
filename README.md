@@ -129,9 +129,13 @@ advocate personas                  # List all personas
 | OpenAI | gpt-5.4-mini | `pip install "advocate[openai] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
 | Gemini | gemini-2.5-flash | `pip install "advocate[gemini] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
 
-For Anthropic, `WANDER_ANTHROPIC_API_KEY` is preferred, with
-`ANTHROPIC_API_KEY` and `JMC_ANTHROPIC_API_KEY` as fallbacks. Set
-`OPENAI_API_KEY` or `GOOGLE_API_KEY` for the other providers.
+For Anthropic, Advocate reads `ANTHROPIC_API_KEY`. To bill through a
+differently named variable, or to try several in order, set
+`ADVOCATE_ANTHROPIC_API_KEY_ENV` to a comma-separated list of variable names,
+or put `anthropic_api_key_env = ["FIRST", "SECOND"]` in
+`$XDG_CONFIG_HOME/advocate/config.toml` (default `~/.config/advocate/config.toml`;
+see `config.example.toml`). The env var wins over the file; the first name that
+is set wins. Set `OPENAI_API_KEY` or `GOOGLE_API_KEY` for the other providers.
 Model defaults can be overridden with `ADVOCATE_MODEL` or provider-specific
 variables such as `ADVOCATE_ANTHROPIC_MODEL` and `ADVOCATE_OPENAI_MODEL`.
 Advocate performs a small model preflight before spawning persona reviews; if

@@ -31,13 +31,27 @@ def test_model_env_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
     assert create_provider("anthropic", "explicit-model").model == "explicit-model"
 
 
-@pytest.mark.asyncio
-async def test_anthropic_provider_prefers_wander_billing_key(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
-    monkeypatch.setenv("JMC_ANTHROPIC_API_KEY", "jmc-key")
+@pytest.fixture
+def isolated_key_config(monkeypatch: pytest.MonkeyPatch, tmp_path):
+    """Point the user config at an empty temp dir and clear key env vars."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    for name in (
+        "ADVOCATE_ANTHROPIC_API_KEY_ENV",
+        "ANTHROPIC_API_KEY",
+        "TEAM_ANTHROPIC_API_KEY",
+        "OTHER_ANTHROPIC_API_KEY",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    return tmp_path
+
+
+def _write_key_config(root, body: str) -> None:
+    cfg = root / "advocate" / "config.toml"
+    cfg.parent.mkdir(parents=True, exist_ok=True)
+    cfg.write_text(body, encoding="utf-8")
+
+
+async def _resolved_api_key() -> str | None:
     usage = SimpleNamespace(input_tokens=2, output_tokens=1)
     response = SimpleNamespace(
         content=[SimpleNamespace(type="text", text="OK")],
@@ -53,10 +67,64 @@ async def test_anthropic_provider_prefers_wander_billing_key(
             16,
         )
 
-    client_cls.assert_called_once_with(
-        base_url="https://api.anthropic.com", api_key="wander-key"
-    )
     assert result == ("OK", 2, 1)
+    assert client_cls.call_args.kwargs["base_url"] == "https://api.anthropic.com"
+    return client_cls.call_args.kwargs.get("api_key")
+
+
+@pytest.mark.asyncio
+async def test_anthropic_key_defaults_to_standard_env_var(
+    monkeypatch: pytest.MonkeyPatch, isolated_key_config
+) -> None:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
+    monkeypatch.setenv("TEAM_ANTHROPIC_API_KEY", "team-key")
+
+    assert await _resolved_api_key() == "generic-key"
+
+
+@pytest.mark.asyncio
+async def test_anthropic_key_order_from_env_override(
+    monkeypatch: pytest.MonkeyPatch, isolated_key_config
+) -> None:
+    monkeypatch.setenv(
+        "ADVOCATE_ANTHROPIC_API_KEY_ENV",
+        "TEAM_ANTHROPIC_API_KEY, ANTHROPIC_API_KEY",
+    )
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
+    monkeypatch.setenv("TEAM_ANTHROPIC_API_KEY", "team-key")
+    assert await _resolved_api_key() == "team-key"
+
+    monkeypatch.delenv("TEAM_ANTHROPIC_API_KEY")
+    assert await _resolved_api_key() == "generic-key"
+
+
+@pytest.mark.asyncio
+async def test_anthropic_key_order_from_config_file(
+    monkeypatch: pytest.MonkeyPatch, isolated_key_config
+) -> None:
+    _write_key_config(
+        isolated_key_config,
+        'anthropic_api_key_env = ["TEAM_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"]\n',
+    )
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
+    monkeypatch.setenv("TEAM_ANTHROPIC_API_KEY", "team-key")
+    assert await _resolved_api_key() == "team-key"
+
+    # The env override wins over the file.
+    monkeypatch.setenv("ADVOCATE_ANTHROPIC_API_KEY_ENV", "OTHER_ANTHROPIC_API_KEY")
+    monkeypatch.setenv("OTHER_ANTHROPIC_API_KEY", "other-key")
+    assert await _resolved_api_key() == "other-key"
+
+
+@pytest.mark.asyncio
+async def test_anthropic_key_config_malformed_fails_loudly(
+    monkeypatch: pytest.MonkeyPatch, isolated_key_config
+) -> None:
+    _write_key_config(isolated_key_config, 'anthropic_api_key_env = "NOT_A_LIST"\n')
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
+
+    with pytest.raises(RuntimeError, match="anthropic_api_key_env"):
+        await _resolved_api_key()
 
 
 @pytest.mark.asyncio
@@ -67,7 +135,7 @@ async def test_anthropic_provider_ignores_ambient_base_url(
     so a coding-agent gateway in the ambient shell hijacked Advocate's
     requests and 404ed on models the billing key has. Advocate must pin the
     public API unless ADVOCATE_ANTHROPIC_BASE_URL opts in explicitly."""
-    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://gateway.invalid")
     monkeypatch.delenv("ADVOCATE_ANTHROPIC_BASE_URL", raising=False)
     usage = SimpleNamespace(input_tokens=1, output_tokens=1)
@@ -87,7 +155,7 @@ async def test_anthropic_provider_ignores_ambient_base_url(
 async def test_anthropic_provider_honors_explicit_advocate_base_url(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("WANDER_ANTHROPIC_API_KEY", "wander-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "generic-key")
     monkeypatch.setenv("ADVOCATE_ANTHROPIC_BASE_URL", "https://pinned.example")
     usage = SimpleNamespace(input_tokens=1, output_tokens=1)
     response = SimpleNamespace(
