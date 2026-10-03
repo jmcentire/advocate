@@ -1,0 +1,7 @@
+# Example Advocate user config. Copy to $XDG_CONFIG_HOME/advocate/config.toml
+# (default ~/.config/advocate/config.toml). Never commit the real file.
+#
+# Environment variables to read the Anthropic API key from, tried in order;
+# the first one that is set wins. Default when unset: ["ANTHROPIC_API_KEY"].
+# ADVOCATE_ANTHROPIC_API_KEY_ENV (comma-separated) overrides this list.
+anthropic_api_key_env = ["MY_TEAM_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"]
