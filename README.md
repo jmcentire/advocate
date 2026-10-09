@@ -1,6 +1,6 @@
 # Advocate
 
-Six-persona adversarial review engine. Feed it code, a design doc, or an architecture decision and six distinct perspectives attack it simultaneously, each with a different standard of success.
+Seven-persona adversarial review engine. Feed it code, a design doc, or an architecture decision and seven distinct perspectives attack it simultaneously, each with a different standard of success.
 
 ## Quick Start
 
@@ -20,7 +20,7 @@ echo "We plan to store session tokens in localStorage" | advocate review --stdin
 advocate review src/auth.py -p red_team -p good_friend
 ```
 
-## The Six Personas
+## The Seven Personas
 
 | Persona | Angle | Success Criterion |
 |---|---|---|
@@ -30,8 +30,9 @@ advocate review src/auth.py -p red_team -p good_friend
 | **User** | It's unintuitive; clarify. | Someone unfamiliar can navigate it without a guide. |
 | **Subject Matter Expert** | Peer-review. | A peer would sign off on it. |
 | **Good Friend** | The harsh truth you need to hear. | You'd rather know now than later. |
+| **Pat Helland** | Whose data is it? Name the authority. | Every fact has exactly one owner, and every guess has an apology path. |
 
-They run in parallel (6 simultaneous LLM calls) and sometimes disagree with each other. The disagreements are signal, not noise -- they reveal tensions worth examining.
+They run in parallel (7 simultaneous LLM calls) and sometimes disagree with each other. The disagreements are signal, not noise -- they reveal tensions worth examining.
 
 ## Dimensions of Coverage
 
@@ -51,6 +52,8 @@ Each persona covers specific dimensions, but the perspectives overlap deliberate
 - **The 3am test** -- would you be comfortable being woken up to deal with this?
 - **Design** -- over-engineering, premature abstraction, wrong patterns
 - **Concept** -- is the fundamental approach sound?
+- **Data ownership** -- which system is the single authority for each fact?
+- **Reconciliation** -- when systems disagree, is there an agreed tolerance and an apology path?
 
 ## The 3am Test
 
@@ -155,7 +158,7 @@ Binary files, `__pycache__`, `.git`, and `node_modules` are skipped automaticall
 
 ## Cost
 
-Six parallel calls to Claude Sonnet costs ~$0.15-0.30 per review depending on input size. Use `--sequential` or `-p` to reduce costs. Token counts and estimated USD are shown in the output.
+Seven parallel calls to Claude Sonnet cost ~$0.18-0.35 per review depending on input size. Use `--sequential` or `-p` to reduce costs. Token counts and estimated USD are shown in the output.
 
 If a model isn't in Advocate's internal pricing table yet (e.g. one released after this
 version of Advocate), the cost is shown as "unknown" rather than a guessed figure --
