@@ -1,6 +1,6 @@
 # Advocate
 
-Six-persona adversarial review engine. Feed it code, a design doc, or an architecture decision and six distinct perspectives attack it simultaneously, each with a different standard of success.
+Seven-persona adversarial review engine. Feed it code, a design doc, or an architecture decision and seven distinct perspectives attack it simultaneously, each with a different standard of success.
 
 ## Quick Start
 
@@ -20,7 +20,7 @@ echo "We plan to store session tokens in localStorage" | advocate review --stdin
 advocate review src/auth.py -p red_team -p good_friend
 ```
 
-## The Six Personas
+## The Seven Personas
 
 | Persona | Angle | Success Criterion |
 |---|---|---|
@@ -30,8 +30,9 @@ advocate review src/auth.py -p red_team -p good_friend
 | **User** | It's unintuitive; clarify. | Someone unfamiliar can navigate it without a guide. |
 | **Subject Matter Expert** | Peer-review. | A peer would sign off on it. |
 | **Good Friend** | The harsh truth you need to hear. | You'd rather know now than later. |
+| **Pat Helland** | Whose data is it? Name the authority. | Every fact has exactly one owner, and every guess has an apology path. |
 
-They run in parallel (6 simultaneous LLM calls) and sometimes disagree with each other. The disagreements are signal, not noise -- they reveal tensions worth examining.
+They run in parallel (7 simultaneous LLM calls) and sometimes disagree with each other. The disagreements are signal, not noise -- they reveal tensions worth examining.
 
 ## Dimensions of Coverage
 
@@ -51,6 +52,8 @@ Each persona covers specific dimensions, but the perspectives overlap deliberate
 - **The 3am test** -- would you be comfortable being woken up to deal with this?
 - **Design** -- over-engineering, premature abstraction, wrong patterns
 - **Concept** -- is the fundamental approach sound?
+- **Data ownership** -- which system is the single authority for each fact?
+- **Reconciliation** -- when systems disagree, is there an agreed tolerance and an apology path?
 
 ## The 3am Test
 
@@ -103,7 +106,7 @@ A Sage saying "simplify this" while the SME says "this complexity is necessary" 
 advocate review <target>           # Review a file or directory
 advocate review --stdin            # Review from stdin
 advocate review -p red_team        # Specific persona(s)
-advocate review --sequential       # Run one at a time (cheaper)
+advocate review --sequential       # Run one at a time (avoids rate limits)
 advocate review --no-color         # Disable terminal colors
 advocate personas                  # List all personas
 ```
@@ -125,7 +128,7 @@ advocate personas                  # List all personas
 
 | Provider | Default Model | Install |
 |---|---|---|
-| Anthropic | claude-sonnet-4-6 | `pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
+| Anthropic | claude-opus-5 | `pip install "advocate[anthropic] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
 | OpenAI | gpt-5.4-mini | `pip install "advocate[openai] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
 | Gemini | gemini-2.5-flash | `pip install "advocate[gemini] @ git+https://github.com/jmcentire/advocate.git@v0.1.5"` |
 
@@ -155,7 +158,7 @@ Binary files, `__pycache__`, `.git`, and `node_modules` are skipped automaticall
 
 ## Cost
 
-Six parallel calls to Claude Sonnet costs ~$0.15-0.30 per review depending on input size. Use `--sequential` or `-p` to reduce costs. Token counts and estimated USD are shown in the output.
+Each review makes seven parallel LLM calls, one per persona, so cost scales with input size and the model you choose. Use `-p` to run fewer personas and reduce cost. `--sequential` runs the same calls one at a time, which helps with rate limits but costs the same. Token counts and estimated USD are shown in the output.
 
 If a model isn't in Advocate's internal pricing table yet (e.g. one released after this
 version of Advocate), the cost is shown as "unknown" rather than a guessed figure --

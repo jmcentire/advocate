@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Advocate — Six-Persona Adversarial Review</title>
-<meta name="description" content="Feed it code, a design, or a decision. Six distinct perspectives attack it simultaneously. Disagreements are signal.">
+<title>Advocate — Seven-Persona Adversarial Review</title>
+<meta name="description" content="Feed it code, a design, or a decision. Seven distinct perspectives attack it simultaneously. Disagreements are signal.">
 <style>
   :root {
     --bg: #0d1117; --fg: #c9d1d9; --accent: #58a6ff; --green: #3fb950;
@@ -93,7 +93,7 @@
   <section class="hero">
     <h1><span>Advocate</span></h1>
     <p class="tagline">
-      Six distinct perspectives attack your code simultaneously, each with a different
+      Seven distinct perspectives attack your code simultaneously, each with a different
       standard of success. Disagreements between them are signal, not noise.
     </p>
     <div class="hero-actions">
@@ -108,7 +108,7 @@
   </section>
 
   <section>
-    <h2>The Six Personas</h2>
+    <h2>The Seven Personas</h2>
     <p class="subtitle">Not a checklist. Genuine distinct perspectives that will disagree with each other sometimes.</p>
     <div class="persona-grid">
       <div class="persona-card">
@@ -147,6 +147,12 @@
         <div class="success">Success: you'd rather know now than later.</div>
         <div class="dims">Financial risk, the 3am test, blast radius, failure modes</div>
       </div>
+      <div class="persona-card">
+        <h3>Pat Helland</h3>
+        <div class="angle">Whose data is it? Name the authority.</div>
+        <div class="success">Success: every fact has exactly one owner, and every guess has an apology path.</div>
+        <div class="dims">Data ownership, reconciliation, wrong assumptions, design</div>
+      </div>
     </div>
   </section>
 
@@ -157,7 +163,7 @@
   </div>
 
   <section>
-    <h2>14 Dimensions</h2>
+    <h2>16 Dimensions</h2>
     <p class="subtitle">Engineering, architecture, and operational reality.</p>
     <div class="dim-grid">
       <div class="dim-item"><strong>Security</strong><span>Auth, authz, privilege escalation</span></div>
@@ -174,6 +180,8 @@
       <div class="dim-item"><strong>The 3am Test</strong><span>Pager fatigue, human cost</span></div>
       <div class="dim-item"><strong>Design</strong><span>Over-engineering, wrong patterns</span></div>
       <div class="dim-item"><strong>Concept</strong><span>Is the approach fundamentally sound?</span></div>
+      <div class="dim-item"><strong>Data Ownership</strong><span>One authority per fact</span></div>
+      <div class="dim-item"><strong>Reconciliation</strong><span>Tolerances, deltas, apologies</span></div>
     </div>
   </section>
 
@@ -203,7 +211,7 @@ advocate review src/ --provider openai --model gpt-5.4-mini</code></pre>
     <div class="feature-grid">
       <div class="feature">
         <h3>Parallel by Default</h3>
-        <p>All six personas run simultaneously. Full review in ~30 seconds. Use --sequential to save costs.</p>
+        <p>All seven personas run simultaneously. Full review in ~30 seconds. Use -p to run fewer personas and save costs.</p>
       </div>
       <div class="feature">
         <h3>Disagreement Detection</h3>
@@ -211,7 +219,7 @@ advocate review src/ --provider openai --model gpt-5.4-mini</code></pre>
       </div>
       <div class="feature">
         <h3>Multi-Provider</h3>
-        <p>Claude Sonnet 4.6, OpenAI, or Gemini. Anthropic reviews read <code>ANTHROPIC_API_KEY</code>, or a configurable ordered list of key variables. With transmogrifier integration for prompt optimization across models.</p>
+        <p>Claude Opus 5, OpenAI, or Gemini. Anthropic reviews read <code>ANTHROPIC_API_KEY</code>, or a configurable ordered list of key variables. With transmogrifier integration for prompt optimization across models.</p>
       </div>
       <div class="feature">
         <h3>Self-Reviewed</h3>
