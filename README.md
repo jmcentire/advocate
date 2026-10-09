@@ -106,7 +106,7 @@ A Sage saying "simplify this" while the SME says "this complexity is necessary" 
 advocate review <target>           # Review a file or directory
 advocate review --stdin            # Review from stdin
 advocate review -p red_team        # Specific persona(s)
-advocate review --sequential       # Run one at a time (cheaper)
+advocate review --sequential       # Run one at a time (avoids rate limits)
 advocate review --no-color         # Disable terminal colors
 advocate personas                  # List all personas
 ```
@@ -158,7 +158,7 @@ Binary files, `__pycache__`, `.git`, and `node_modules` are skipped automaticall
 
 ## Cost
 
-Seven parallel calls to Claude Sonnet cost ~$0.18-0.35 per review depending on input size. Use `--sequential` or `-p` to reduce costs. Token counts and estimated USD are shown in the output.
+Seven parallel calls to Claude Sonnet cost ~$0.18-0.35 per review depending on input size. Use `-p` to run fewer personas and reduce cost. `--sequential` runs the same calls one at a time, which helps with rate limits but costs the same. Token counts and estimated USD are shown in the output.
 
 If a model isn't in Advocate's internal pricing table yet (e.g. one released after this
 version of Advocate), the cost is shown as "unknown" rather than a guessed figure --
