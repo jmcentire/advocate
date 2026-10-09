@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "advocate"
 version = "0.1.5"
-description = "Six-persona adversarial review engine — stress-tests code, designs, and decisions"
+description = "Seven-persona adversarial review engine — stress-tests code, designs, and decisions"
 requires-python = ">=3.12"
 license = "MIT"
 dependencies = [

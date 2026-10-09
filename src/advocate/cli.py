@@ -11,7 +11,7 @@ import click
 
 @click.group()
 def main() -> None:
-    """advocate -- Six-persona adversarial review engine."""
+    """advocate -- Seven-persona adversarial review engine."""
 
 
 @main.command()
